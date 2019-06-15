@@ -24,18 +24,18 @@ include $(BOLOS_SDK)/Makefile.defines
 
 APPVERSION_M=1
 APPVERSION_N=0
-APPVERSION_P=1
+APPVERSION_P=0
 
-APPNAME = "Waves"
+APPNAME = "LTO Network"
 APPVERSION = $(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)
 
 ifeq ($(TARGET_NAME),TARGET_BLUE)
-ICONNAME=blue_app_waves.gif
+ICONNAME = nanos_app_lto.gif
 else
 	ifeq ($(TARGET_NAME),TARGET_NANOX)
-ICONNAME=nanox_app_waves.gif
+ICONNAME = nanos_app_lto.gif
 	else
-ICONNAME = nanos_app_waves.gif
+ICONNAME=nanos_app_lto.gif
 	endif
 endif
 
@@ -66,7 +66,7 @@ DEFINES += BLAKE_SDK
 
 # U2F Support
 DEFINES   += HAVE_U2F
-DEFINES   += HAVE_IO_U2F U2F_PROXY_MAGIC=\"WAVES\"
+DEFINES   += HAVE_IO_U2F U2F_PROXY_MAGIC=\"LTO\"
 DEFINES   += USB_SEGMENT_SIZE=64
 
 DEFINES   += UNUSED\(x\)=\(void\)x
@@ -153,4 +153,4 @@ include $(BOLOS_SDK)/Makefile.rules
 
 
 listvariants:
-	@echo VARIANTS COIN waves
+	@echo VARIANTS COIN lto

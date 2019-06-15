@@ -39,7 +39,7 @@ extern ux_state_t ux;
 enum UI_STATE { UI_IDLE, UI_VERIFY };
 extern enum UI_STATE ui_state;
 
-static const unsigned char WAVES_CONST[] = "Waves";
+static const unsigned char LTO_CONST[] = "LTO";
 
 void menu_sign_init();
 void ui_idle();
@@ -54,7 +54,7 @@ void menu_address_init();
 #define TEXT_HEIGHT 15
 #define TEXT_SPACE 4
 
-#define COLOR_WAVES 0x0055FF
+#define COLOR_LTO 0x0055FF
 #define COLOR_WHITE 0xF9F9F9
 
 #define QUANTS_PER_BURST 100000000

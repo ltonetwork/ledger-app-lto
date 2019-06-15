@@ -20,7 +20,7 @@
 #include <stdbool.h>
 
 #include "main.h"
-#include "crypto/waves.h"
+#include "crypto/lto.h"
 #include "crypto/ledger_crypto.h"
 #include "os_io_seproxyhal.h"
 
@@ -133,7 +133,7 @@ uint32_t set_result_sign() {
     public_key_le_to_be(&public_key);
 
     uint8_t signature[64];
-    waves_message_sign(&private_key, public_key.W, (unsigned char *) tmp_ctx.signing_context.buffer, tmp_ctx.signing_context.buffer_used, signature);
+    lto_message_sign(&private_key, public_key.W, (unsigned char *) tmp_ctx.signing_context.buffer, tmp_ctx.signing_context.buffer_used, signature);
 
     os_memmove((char *) G_io_apdu_buffer, signature, sizeof(signature));
 
@@ -215,7 +215,7 @@ void handle_apdu(volatile unsigned int *flags, volatile unsigned int *tx, volati
                 }
 
                 unsigned char address[35];
-                waves_public_key_to_address(public_key.W, G_io_apdu_buffer[3], address);
+                lto_public_key_to_address(public_key.W, G_io_apdu_buffer[3], address);
 
                 os_memmove((char *) tmp_ctx.address_context.public_key, public_key.W, 32);
                 os_memmove((char *) tmp_ctx.address_context.address, address, 35);
@@ -274,7 +274,7 @@ void init_context() {
     os_memset(&tmp_ctx, 0, sizeof(tmp_ctx));
 }
 
-static void waves_main(void) {
+static void lto_main(void) {
     volatile unsigned int rx = 0;
     volatile unsigned int tx = 0;
     volatile unsigned int flags = 0;
@@ -440,7 +440,7 @@ __attribute__((section(".boot"))) int main(void) {
                 UX_SET_STATUS_BAR_COLOR(COLOR_BG_1, COLOR_APP);
 #endif // #if TARGET_ID
 
-                waves_main();
+                lto_main();
             }
             CATCH(EXCEPTION_IO_RESET) {
                 // reset IO and UX before continuing

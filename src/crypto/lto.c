@@ -1,4 +1,4 @@
-#include "waves.h"
+#include "lto.h"
 #include "ledger_crypto.h"
 
 void lto_secure_hash(const uint8_t *message, size_t message_len, uint8_t hash[32]) {
@@ -6,7 +6,7 @@ void lto_secure_hash(const uint8_t *message, size_t message_len, uint8_t hash[32
     sha_256(hash, 32, hash);
 }
 
-void waves_message_sign(const cx_ecfp_private_key_t *private_key, const ed25519_public_key public_key, const unsigned char *message, const size_t message_size, ed25519_signature signature) {
+void lto_message_sign(const cx_ecfp_private_key_t *private_key, const ed25519_public_key public_key, const unsigned char *message, const size_t message_size, ed25519_signature signature) {
     // ed25519 signature with the sha512 hashing
     cx_eddsa_sign(private_key, 0, CX_SHA512, message, message_size, NULL, 0, signature, 64, NULL);
     // set the sign bit from ed25519 public key (using 31 byte) for curve25519 validation used in waves (this makes the ed25519 signature invalid)
@@ -15,7 +15,7 @@ void waves_message_sign(const cx_ecfp_private_key_t *private_key, const ed25519_
 }
 
 // Build lto address from the curve25519 public key
-void waves_public_key_to_address(const ed25519_public_key public_key, const unsigned char network_byte, unsigned char *output) {
+void lto_public_key_to_address(const ed25519_public_key public_key, const unsigned char network_byte, unsigned char *output) {
     uint8_t public_key_hash[32];
     uint8_t address[26];
     uint8_t checksum[32];

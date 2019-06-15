@@ -31,7 +31,7 @@ dongle = None
 pw.setOffline()
 
 # 'T' for testnet, 'W' for mainnet
-chain_id = 'W'
+chain_id = 'L'
 
 class colors:
     '''Colors class:
@@ -162,10 +162,19 @@ def expand_path(n):
     return path
 
 
-def build_transfer_bytes(publicKey, recipient, asset, amount, attachment='', feeAsset='', txFee=100000, timestamp=0, version = b'\2'):
+#{"senderPublicKey":"2udVoiNuehzqDb4yK8DY8WK1ahHv9hivhVQ8TH4iSUSk",
+#"amount":7395424983,
+#"attachment":""
+#,"sender":"3Jjr2b6pXZjKWdjEpdWv7cyqUhniVbr61Mc"  ------- 3Jwt79QZTneKn2ksQvmhpHusYWCw3i53DFK
+#,"signature":"1CzvTLceRRqpkzagDN8jBbBs9sCGcXxKCpR1GrAXYnCJAeKoZYXN5Mpj2hNCDL8RC26NJJChc91h1sptkhwnuh1"
+#,"fee":100000000,
+#"recipient":"3Jn8EFisiWfiW1E9a4a1SLJepPN7bqGTvQs","id":"Fn3JzwdMybEX697Kn1PygHfyGffU3wydxRzP8jJ87eLF","type":4,"version":1,"timestamp":1559258384364}
+
+def build_transfer_bytes(publicKey, recipient, asset, amount, attachment='', feeAsset='', txFee=100000000, timestamp=0, version = b'\2'):
     if timestamp == 0:
         timestamp = int(time.time() * 1000)
 
+    print("timestamp: " + str(timestamp)) 
     sData = b'\4' + version + b'\4'
 
     if version == b'\2':
@@ -177,7 +186,7 @@ def build_transfer_bytes(publicKey, recipient, asset, amount, attachment='', fee
             struct.pack(">Q", timestamp) + \
             struct.pack(">Q", amount) + \
             struct.pack(">Q", txFee) + \
-            base58.b58decode(recipient.address) + \
+            base58.b58decode(recipient) + \
             struct.pack(">H", len(attachment)) + \
             pwcrypto.str2bytes(attachment)
     return sData
@@ -235,9 +244,8 @@ while (True):
         # attachment: privet
         # fee: 0.001
         # fee asset: WAVES
-        some_transfer_bytes = build_transfer_bytes('4ovEU8YpbHTurwzw8CDZaCD7m6LpyMTC4nrJcgDHb4Jh',
-                                                   pw.Address('3PMpANFyKGBwzvv1UVk2KdN23fJZ8sXSVEK'),
-                                                   pw.Asset('9gqcTyupiDWuogWhKv8G3EMwjMaobkw9Lpys4EY2F62t'), 1,
+        some_transfer_bytes = build_transfer_bytes('6Ah8UL8Di5ZE13AdfgBFuCxxHX2cEHBXEsT8d2aFLYvU',
+                                                  '3Jwt79QZTneKn2ksQvmhpHusYWCw3i53DFK', None, 1,
                                                    'privet', timestamp = 1526477921829)
         input = raw_input(colors.fg.lightblue + "Please input message to sign (for example \"" + base58.b58encode(
             str(some_transfer_bytes)) + "\")> " + colors.reset)
