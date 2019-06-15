@@ -54,7 +54,7 @@ void menu_address_init();
 #define TEXT_HEIGHT 15
 #define TEXT_SPACE 4
 
-#define COLOR_LTO 0x0055FF
+#define COLOR_LTO 0x9867CF
 #define COLOR_WHITE 0xF9F9F9
 
 #define QUANTS_PER_BURST 100000000
