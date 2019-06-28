@@ -15,5 +15,35 @@ Special thanks to Ledger team and Waves community.
 In order to build this application you need to create a Ledger development environment.  More information can be 
 found here: https://ledger.readthedocs.io/en/latest/userspace/getting_started.html
 
-This process involves the setup of a toolchain, SDK, compiler, paths and many libraries. I have prepared a virtual machine with everithing ready to build this wallet application.
-For that, just ping me on Telegram.
+
+Compile the app:
+```bash
+make
+```
+Load the app onto the device:
+```bash
+make load
+```
+Remove the app from the device:
+```bash
+make delete
+```
+Clean compilation files:
+```bash
+make clean
+```
+
+
+# Run test app
+
+Once the app is compiled and loaded, you can try to communicate with it using the Python script.
+
+Install dependencies:
+```bash
+pip install -r python2.7-dependencies.txt --no-index
+```
+
+Then enter the LTO Network app on your ledger and start the script_
+```bash
+python python/ledger-lto.py
+```
