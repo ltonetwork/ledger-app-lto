@@ -39,7 +39,7 @@ ICONNAME=nanos_app_lto.gif
 	endif
 endif
 
-APP_LOAD_PARAMS = --appFlags 0x240 --path "44'/5741564'" --curve secp256k1 --curve ed25519 $(COMMON_LOAD_PARAMS)
+APP_LOAD_PARAMS = --appFlags 0x240 --path "44'/353'" --curve secp256k1 --curve ed25519 $(COMMON_LOAD_PARAMS)
 
 # Build configuration
 
