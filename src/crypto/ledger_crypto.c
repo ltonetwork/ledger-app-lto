@@ -4,7 +4,6 @@
 #include "keypair.h"
 #include "os.h"
 #include "cx.h"
-// Aqui estan todos  los metodos de firma
 
 // converts little endian 65 byte (0x4 32X 32Y) public key to 32 byte Y big endian form (for other applications)
 void public_key_le_to_be(cx_ecfp_public_key_t* public_key) {
@@ -31,19 +30,6 @@ void get_keypair_by_path(const uint32_t* path, cx_ecfp_public_key_t* public_key,
     cx_ecdsa_init_private_key(CX_CURVE_Ed25519, privateKeyData, 32, private_key);
     cx_ecdsa_init_public_key(CX_CURVE_Ed25519, NULL, 0, public_key);
     cx_ecfp_generate_pair(CX_CURVE_Ed25519, public_key, private_key, 1);
-}
-
-// Get a public key from the 44'/5741564' keypath.
-bool get_curve25519_public_key_for_path(const uint32_t* path, cx_ecfp_public_key_t* public_key) {
-    cx_ecfp_private_key_t private_key;
-    // derive the ed25519 keys by that BIP32 path from the device
-    get_keypair_by_path(path, public_key, &private_key);
-    // clean private key
-    os_memset(private_key.d, 0, 32);
-
-    public_key_le_to_be(public_key);
-
-    return ed25519_pk_to_curve25519(public_key->W, public_key->W) == 0;
 }
 
 void blake2b_256(const unsigned char* msg, size_t msg_len, void* out) {
