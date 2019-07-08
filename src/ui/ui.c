@@ -248,6 +248,8 @@ void menu_sign_init() {
     // Get the public key and return it.
     cx_ecfp_public_key_t public_key;
 
+    get_ed25519_public_key_for_path((uint32_t *) tmp_ctx.signing_context.bip32, &public_key);
+
     lto_public_key_to_address(public_key.W, tmp_ctx.signing_context.network_byte, ui_context.line4);
 
     ux_step = 0; ux_step_count = 3;

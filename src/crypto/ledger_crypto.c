@@ -32,6 +32,17 @@ void get_keypair_by_path(const uint32_t* path, cx_ecfp_public_key_t* public_key,
     cx_ecfp_generate_pair(CX_CURVE_Ed25519, public_key, private_key, 1);
 }
 
+// Get a public key
+void get_ed25519_public_key_for_path(const uint32_t* path, cx_ecfp_public_key_t* public_key) {
+    cx_ecfp_private_key_t private_key;
+    // derive the ed25519 keys by that BIP32 path from the device
+    get_keypair_by_path(path, public_key, &private_key);
+    // clean private key
+    os_memset(private_key.d, 0, 32);
+
+    public_key_le_to_be(public_key);
+}
+
 void blake2b_256(const unsigned char* msg, size_t msg_len, void* out) {
     cx_blake2b_t ctx;
     // size in bits
