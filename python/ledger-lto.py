@@ -15,6 +15,14 @@
 # *  See the License for the specific language governing permissions and
 # *  limitations under the License.
 # ********************************************************************************
+
+# ********************************************************************************
+# *
+# *  Script edited and improved by iicc1 to support LTO Network blockchain.
+# *  https://github.com/iicc1/ledger-app-lto-network-unofficial
+# *
+# ********************************************************************************
+
 from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
 import base58
@@ -30,7 +38,7 @@ dongle = None
 
 pw.setOffline()
 
-# 'T' for testnet, 'W' for mainnet
+# 'T' for testnet, 'L' for mainnet
 chain_id = 'L'
 
 class colors:
@@ -162,27 +170,14 @@ def expand_path(n):
     return path
 
 
-#{"senderPublicKey":"2udVoiNuehzqDb4yK8DY8WK1ahHv9hivhVQ8TH4iSUSk",
-#"amount":7395424983,
-#"attachment":""
-#,"sender":"3Jjr2b6pXZjKWdjEpdWv7cyqUhniVbr61Mc"  ------- 3Jwt79QZTneKn2ksQvmhpHusYWCw3i53DFK
-#,"signature":"1CzvTLceRRqpkzagDN8jBbBs9sCGcXxKCpR1GrAXYnCJAeKoZYXN5Mpj2hNCDL8RC26NJJChc91h1sptkhwnuh1"
-#,"fee":100000000,
-#"recipient":"3Jn8EFisiWfiW1E9a4a1SLJepPN7bqGTvQs","id":"Fn3JzwdMybEX697Kn1PygHfyGffU3wydxRzP8jJ87eLF","type":4,"version":1,"timestamp":1559258384364}
-
-def build_transfer_bytes(publicKey, recipient, asset, amount, attachment='', feeAsset='', txFee=100000000, timestamp=0, version = b'\2'):
-    if timestamp == 0:
-        timestamp = int(time.time() * 1000)
-
-    print("timestamp: " + str(timestamp)) 
+def build_transfer_bytes(publicKey, recipient, amount, attachment, txFee, version, timestamp):
+    
     sData = b'\4' + version + b'\4'
 
     if version == b'\2':
         sData += version
 
     sData += base58.b58decode(publicKey) + \
-            (b'\1' + base58.b58decode(asset.assetId) if asset else b'\0') + \
-            (b'\1' + base58.b58decode(feeAsset.assetId) if feeAsset else b'\0') + \
             struct.pack(">Q", timestamp) + \
             struct.pack(">Q", amount) + \
             struct.pack(">Q", txFee) + \
@@ -197,13 +192,13 @@ while (True):
             dongle = getDongle(True)
         except Exception as e:
             answer = raw_input(
-                "Please connect your Ledger Nano S, unlock, and launch the Waves app. Press <enter> when ready. (Q quits)")
+                "Please connect your Ledger Nano S, unlock, and launch the LTO Network app. Press <enter> when ready. (Q quits)")
             if (answer.upper() == 'Q'):
                 sys.exit(0)
             sys.exc_clear()
 
     print("")
-    print(colors.fg.lightcyan + colors.bold + "Ledger Nano S - Waves test app" + colors.reset)
+    print(colors.fg.lightcyan + colors.bold + "Ledger Nano S - LTO Network test app" + colors.reset)
     print(colors.fg.white + "\t 1. Get PublicKey/Address from Ledger Nano S" + colors.reset)
     print(colors.fg.white + "\t 2. Sign tx using Ledger Nano S" + colors.reset)
     print(colors.fg.white + "\t 3. Get app version from Ledger Nano S" + colors.reset)
@@ -212,21 +207,20 @@ while (True):
 
     if (select == "1"):
         path = raw_input(
-            colors.fg.lightblue + "Please input BIP-32 path (for example \"44'/353'/0'/0'/1'\")> " + colors.reset)
+            colors.fg.lightblue + "Please input BIP-32 path (default, press enter: \"44'/353'/0'/0'/0'\")> " + colors.reset)
         if len(path) == 0:
-            path = "44'/353'/0'/0'/1'"
+            path = "44'/353'/0'/0'/0'"
         keys = getKeysFromDongle(expand_path(path), chain_id)
         if keys:
             publicKey = keys[0]
             address = keys[1]
-
             print(colors.fg.blue + "publicKey (base58): " + colors.reset + base58.b58encode(str(publicKey)))
             print(colors.fg.blue + "address: " + colors.reset + address)
     elif (select == "2"):
         path = raw_input(
-            colors.fg.lightblue + "Please input BIP-32 path (for example \"44'/353'/0'/0'/1'\")> " + colors.reset)
+            colors.fg.lightblue + "Please input BIP-32 path (default, press enter: \"44'/353'/0'/0'/0'\")> " + colors.reset)
         if len(path) == 0:
-            path = "44'/353'/0'/0'/1'"
+            path = "44'/353'/0'/0'/0'"
         binary_data = path_to_bytes(expand_path(path))
         print(colors.fg.lightgrey + "path bytes: " + base58.b58encode(str(path_to_bytes(expand_path(path)))))
 
@@ -235,26 +229,27 @@ while (True):
         # fee amount asset decimals
         binary_data += chr(8)
 
-        # Tx info
-        #
-        # amount: 1
-        # asset: 9gqcTyupiDWuogWhKv8G3EMwjMaobkw9Lpys4EY2F62t
-        # from: 3PDCeakWckRvK5vVeJnCy1R2rE1utBcJMwt
-        # to: 3PMpANFyKGBwzvv1UVk2KdN23fJZ8sXSVEK
-        # attachment: privet
-        # fee: 0.001
-        # fee asset: WAVES
-        some_transfer_bytes = build_transfer_bytes('6Ah8UL8Di5ZE13AdfgBFuCxxHX2cEHBXEsT8d2aFLYvU',
-                                                  '3Jwt79QZTneKn2ksQvmhpHusYWCw3i53DFK', None, 1,
-                                                   'privet', timestamp = 1526477921829)
-        input = raw_input(colors.fg.lightblue + "Please input message to sign (for example \"" + base58.b58encode(
-            str(some_transfer_bytes)) + "\")> " + colors.reset)
+        timestamp = int(time.time() * 1000)
+        publicKey = None
+        recipient = None
+        amount = None
+        
+        input = raw_input(colors.fg.lightblue + "Please input your public key> " + colors.reset)
         if len(input) == 0:
-            binary_data += some_transfer_bytes
-            print(colors.fg.lightgrey + "tx bytes:   " + base58.b58encode(str(some_transfer_bytes)))
+            break
         else:
-            binary_data += base58.b58decode(input)
-            print(colors.fg.lightgrey + "tx bytes:   " + base58.b58encode(str(input)))
+            publicKey = input
+        input = raw_input(colors.fg.lightblue + "Please input the recipient LTO address> " + colors.reset)
+        if len(input) == 0:
+            break
+        else:
+            recipient = input
+        input = raw_input(colors.fg.lightblue + "Please input the amount of LTO to send> " + colors.reset)
+        if len(input) == 0:
+            break
+        else:
+            amount = int(input) * 100000000
+        binary_data += build_transfer_bytes(publicKey, recipient, amount, '',100000000 , b'\1', timestamp)
         signature = None
         while (True):
             try:
@@ -275,7 +270,16 @@ while (True):
                     apdu = bytes("8002".decode('hex')) + chr(p1) + chain_id + chr(len(chunk)) + bytes(chunk)
                     signature = dongle.exchange(apdu)
                     offset += len(chunk)
-                print("signature " + base58.b58encode(str(signature)))
+                print(colors.bold + "\n ** Transaction signed successfully **\n  Now broadcast it by pasting the JSON here:"
+"\n  https://nodes.lto.network/api-docs/index.html#!/transactions/broadcast\n"
+"  Then you can track your transaction here: https://explorer.lto.network")
+                print(colors.fg.pink + "{\"senderPublicKey\":\"" + publicKey + "\",")
+                print("\"amount\":" + str(amount) + ",")
+                print("\"signature\":\"" + base58.b58encode(str(signature)) + "\",")
+                print("\"fee\":100000000,")
+                print("\"recipient\":\"" + recipient + "\",")
+                print("\"type\":4,")
+                print("\"timestamp\":" + str(timestamp) + "}" + colors.reset)
                 break
             except CommException as e:
                 if (e.sw == 0x6990):
@@ -288,7 +292,7 @@ while (True):
             except Exception as e:
                 print(e, type(e))
                 answer = raw_input(
-                    "Please connect your Ledger Nano S, unlock, and launch the Waves app. Press <enter> when ready. (Q quits)")
+                    "Please connect your Ledger Nano S, unlock, and launch the LTO Network app. Press <enter> when ready. (Q quits)")
                 if (answer.upper() == 'Q'):
                     sys.exit(0)
                 sys.exc_clear()

@@ -65,7 +65,7 @@ void menu_address_init() {
     #endif // #if TARGET_ID
 }
 
-// Idle state, sow the menu
+// Idle state, show the menu
 void ui_idle() {
     ux_step = 0; ux_step_count = 0;
     ui_state = UI_IDLE;
@@ -99,6 +99,10 @@ void menu_sign_init() {
         // Sender public key 32 bytes
         lto_public_key_to_address((const unsigned char *) &tmp_ctx.signing_context.buffer[processed], tmp_ctx.signing_context.network_byte, (unsigned char *) ui_context.line7);
         processed += 32;
+
+        os_memmove((char *) ui_context.line2, LTO_CONST, 5);
+
+        os_memmove((char *) ui_context.line5, LTO_CONST, 5);
 
         // timestamp;
         processed += 8;
@@ -174,6 +178,8 @@ void menu_sign_init() {
             os_memmove(&ui_context.line1, &"cancel leasing\0", 15);
         } else if (tx_type == 11) {
             os_memmove(&ui_context.line1, &"mass transfer\0", 14);
+        } else if (tx_type == 15) {
+            os_memmove(&ui_context.line1, &"anchor\0", 7);
         } else {
             // type byte >200 are 'reserved', it will not be signed
             os_memmove(&ui_context.line2, &"Hash\0", 5);
