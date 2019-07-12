@@ -1,7 +1,5 @@
 #include "ledger_crypto.h"
 
-
-#include "keypair.h"
 #include "os.h"
 #include "cx.h"
 

@@ -1,6 +1,6 @@
 
 /*******************************************************************************
-*   Burstcoin Wallet App for Nano Ledger S. Updated By Waves community.
+*   Burstcoin Wallet App for Nano Ledger S. Updated By Waves and LTO Network community.
 *   Copyright (c) 2017-2018 Jake B.
 * 
 *   Based on Sample code provided and (c) 2016 Ledger
@@ -78,7 +78,7 @@ typedef struct signingContext_t {
 	unsigned char amount_decimals;
 	unsigned char fee_decimals;
 	// Stuff for the SHA-256 hashing
-    // Curve25519 support only full message hash
+    // Ed25519 support only full message hash
 	unsigned char data_type;
 	unsigned char data_version;
 	unsigned char buffer[MAX_DATA_SIZE];

@@ -170,20 +170,33 @@ def expand_path(n):
     return path
 
 
-def build_transfer_bytes(publicKey, recipient, amount, attachment, txFee, version, timestamp):
+def build_transfer_bytes(publicKey, recipient, amount, attachment, txFee, version, timestamp, tx_type):
     
-    sData = b'\4' + version + b'\4'
+    sData = chr(tx_type) + version + chr(tx_type)
 
     if version == b'\2':
         sData += version
+    if tx_type == 4: # transfer
+        sData += base58.b58decode(publicKey) + \
+                struct.pack(">Q", timestamp) + \
+                struct.pack(">Q", amount) + \
+                struct.pack(">Q", txFee) + \
+                base58.b58decode(recipient) + \
+                struct.pack(">H", len(attachment)) + \
+                pwcrypto.str2bytes(attachment)
+    elif tx_type == 8: # start lease
+        sData += base58.b58decode(publicKey) + \
+                base58.b58decode(recipient) + \
+                struct.pack(">Q", amount) + \
+                struct.pack(">Q", txFee) + \
+                struct.pack(">Q", timestamp)
+    elif tx_type == 9: # cancel lease
+        sData += base58.b58decode(publicKey) + \
+                struct.pack(">Q", txFee) + \
+                struct.pack(">Q", timestamp) + \
+                base58.b58decode(recipient)
 
-    sData += base58.b58decode(publicKey) + \
-            struct.pack(">Q", timestamp) + \
-            struct.pack(">Q", amount) + \
-            struct.pack(">Q", txFee) + \
-            base58.b58decode(recipient) + \
-            struct.pack(">H", len(attachment)) + \
-            pwcrypto.str2bytes(attachment)
+
     return sData
 
 while (True):
@@ -200,9 +213,11 @@ while (True):
     print("")
     print(colors.fg.lightcyan + colors.bold + "Ledger Nano S - LTO Network test app" + colors.reset)
     print(colors.fg.white + "\t 1. Get PublicKey/Address from Ledger Nano S" + colors.reset)
-    print(colors.fg.white + "\t 2. Sign tx using Ledger Nano S" + colors.reset)
-    print(colors.fg.white + "\t 3. Get app version from Ledger Nano S" + colors.reset)
-    print(colors.fg.white + "\t 4. Exit" + colors.reset)
+    print(colors.fg.white + "\t 2. Sign transfer using Ledger Nano S" + colors.reset)
+    print(colors.fg.white + "\t 3. Sign start lease using Ledger Nano S" + colors.reset)
+    print(colors.fg.white + "\t 4. Sign cancel lease using Ledger Nano S" + colors.reset)
+    print(colors.fg.white + "\t 5. Get app version from Ledger Nano S" + colors.reset)
+    print(colors.fg.white + "\t 6. Exit" + colors.reset)
     select = raw_input(colors.fg.cyan + "Please select> " + colors.reset)
 
     if (select == "1"):
@@ -216,7 +231,7 @@ while (True):
             address = keys[1]
             print(colors.fg.blue + "publicKey (base58): " + colors.reset + base58.b58encode(str(publicKey)))
             print(colors.fg.blue + "address: " + colors.reset + address)
-    elif (select == "2"):
+    elif (select == "2" or select == "3" or select == "4"):
         path = raw_input(
             colors.fg.lightblue + "Please input BIP-32 path (default, press enter: \"44'/353'/0'/0'/0'\")> " + colors.reset)
         if len(path) == 0:
@@ -234,22 +249,39 @@ while (True):
         recipient = None
         amount = None
         
+        # Transaction type depending on input
+        tx_type = 4
+        if select == "3":
+            tx_type = 8
+        elif select == "4":
+            tx_type = 9
+        
         input = raw_input(colors.fg.lightblue + "Please input your public key> " + colors.reset)
         if len(input) == 0:
             break
         else:
             publicKey = input
-        input = raw_input(colors.fg.lightblue + "Please input the recipient LTO address> " + colors.reset)
-        if len(input) == 0:
-            break
+
+        if tx_type == 4 or tx_type == 8:
+            input = raw_input(colors.fg.lightblue + "Please input the recipient LTO address> " + colors.reset)
+            if len(input) == 0:
+                break
+            else:
+                recipient = input
+            input = raw_input(colors.fg.lightblue + "Please input the amount of LTO to send> " + colors.reset)
+            if len(input) == 0:
+                break
+            else:
+                amount = int(input) * 100000000
         else:
-            recipient = input
-        input = raw_input(colors.fg.lightblue + "Please input the amount of LTO to send> " + colors.reset)
-        if len(input) == 0:
-            break
-        else:
-            amount = int(input) * 100000000
-        binary_data += build_transfer_bytes(publicKey, recipient, amount, '',100000000 , b'\1', timestamp)
+            input = raw_input(colors.fg.lightblue + "Please input the transaction Id of the lease to cancel> " + colors.reset)
+            if len(input) == 0:
+                break
+            else:
+                recipient = input
+
+        # Gets the binary data that will be signed in Ledger
+        binary_data += build_transfer_bytes(publicKey, recipient, amount, '',100000000 , b'\1', timestamp, tx_type)
         signature = None
         while (True):
             try:
@@ -270,15 +302,19 @@ while (True):
                     apdu = bytes("8002".decode('hex')) + chr(p1) + chain_id + chr(len(chunk)) + bytes(chunk)
                     signature = dongle.exchange(apdu)
                     offset += len(chunk)
-                print(colors.bold + "\n ** Transaction signed successfully **\n  Now broadcast it by pasting the JSON here:"
+                print(colors.bold + "\n     ** Transaction signed successfully **\n  Now broadcast it by pasting the JSON here:"
 "\n  https://nodes.lto.network/api-docs/index.html#!/transactions/broadcast\n"
-"  Then you can track your transaction here: https://explorer.lto.network")
+"  Then you can track your transaction here: https://explorer.lto.network\n")
                 print(colors.fg.pink + "{\"senderPublicKey\":\"" + publicKey + "\",")
-                print("\"amount\":" + str(amount) + ",")
+                if tx_type == 4 or tx_type == 8:
+                    print("\"amount\":" + str(amount) + ",")
                 print("\"signature\":\"" + base58.b58encode(str(signature)) + "\",")
                 print("\"fee\":100000000,")
-                print("\"recipient\":\"" + recipient + "\",")
-                print("\"type\":4,")
+                if tx_type == 9:
+                    print("\"txId\":\"" + recipient + "\",")
+                else:
+                    print("\"recipient\":\"" + recipient + "\",")
+                print("\"type\":" + str(tx_type) + ",")
                 print("\"timestamp\":" + str(timestamp) + "}" + colors.reset)
                 break
             except CommException as e:
@@ -296,7 +332,7 @@ while (True):
                 if (answer.upper() == 'Q'):
                     sys.exit(0)
                 sys.exc_clear()
-    elif (select == "3"):
+    elif (select == "5"):
         version = getVersionFromDongle()
         print('App version is {}.{}.{}'.format(version[0],version[1],version[2]))
     else:

@@ -9,9 +9,6 @@
  * Field arithmetic:
  * Use 5*51 bit limbs on 64-bit systems with support for 128 bit arithmetic,
  * and 10*25.5 bit limbs elsewhere.
- *
- * Functions used elsewhere that are candidates for inlining are defined
- * via "private/curve25519_ref10.h".
  */
 
 
