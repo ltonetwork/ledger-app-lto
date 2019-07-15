@@ -19,72 +19,27 @@
 # ********************************************************************************
 # *
 # *  Script edited and improved by iicc1 to support LTO Network blockchain.
+# *  with more features, less dependencies and fully plaftorm independent.
 # *  https://github.com/iicc1/ledger-app-lto-network-unofficial
 # *
 # ********************************************************************************
 
 from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
+from colorama import init, Fore, Style
 import base58
-import hashlib
 import struct
 import sys
-import pywaves.crypto as pwcrypto
-import pywaves as pw
 import time
 
 global dongle
 dongle = None
 
-pw.setOffline()
+# Colorama for Windows OS
+init()
 
 # 'T' for testnet, 'L' for mainnet
 chain_id = 'L'
-
-class colors:
-    '''Colors class:
-    reset all colors with colors.reset
-    two subclasses fg for foreground and bg for background.
-    use as colors.subclass.colorname.
-    i.e. colors.fg.red or colors.bg.green
-    also, the generic bold, disable, underline, reverse, strikethrough,
-    and invisible work with the main class
-    i.e. colors.bold
-    '''
-    reset = '\033[0m'
-    bold = '\033[01m'
-    disable = '\033[02m'
-    underline = '\033[04m'
-    reverse = '\033[07m'
-    strikethrough = '\033[09m'
-    invisible = '\033[08m'
-
-    class fg:
-        black = '\033[30m'
-        red = '\033[31m'
-        green = '\033[32m'
-        orange = '\033[33m'
-        blue = '\033[34m'
-        purple = '\033[35m'
-        cyan = '\033[36m'
-        white = '\033[37m'
-        lightgrey = '\033[90m'
-        lightred = '\033[91m'
-        lightgreen = '\033[92m'
-        yellow = '\033[93m'
-        lightblue = '\033[94m'
-        pink = '\033[95m'
-        lightcyan = '\033[96m'
-
-    class bg:
-        black = '\033[40m'
-        red = '\033[41m'
-        green = '\033[42m'
-        orange = '\033[43m'
-        blue = '\033[44m'
-        purple = '\033[45m'
-        cyan = '\033[46m'
-        lightgrey = '\033[47m'
 
 
 def getKeysFromDongle(path, networkByte):
@@ -96,9 +51,9 @@ def getKeysFromDongle(path, networkByte):
             return [data[0:32], data[32:67]]
         except CommException as e:
             if (e.sw == 0x6985):
-                print(colors.fg.red + "Required condition failed." + colors.reset)
+                print(Fore.RED + "Required condition failed.")
             if (e.sw == 0x9100):
-                print(colors.fg.red + "User denied signing request on Ledger Nano S device." + colors.reset)
+                print(Fore.RED + "User denied signing request on Ledger Nano S device.")
             break
         except Exception as e:
             raw_input(
@@ -115,9 +70,9 @@ def getVersionFromDongle():
             return data[0:3]
         except CommException as e:
             if (e.sw == 0x6985):
-                print(colors.fg.red + "Required condition failed." + colors.reset)
+                print(Fore.RED + "Required condition failed.")
             if (e.sw == 0x9100):
-                print(colors.fg.red + "User denied signing request on Ledger Nano S device." + colors.reset)
+                print(Fore.RED + "User denied signing request on Ledger Nano S device.")
             break
         except Exception as e:
             raw_input(
@@ -182,8 +137,7 @@ def build_transfer_bytes(publicKey, recipient, amount, attachment, txFee, versio
                 struct.pack(">Q", amount) + \
                 struct.pack(">Q", txFee) + \
                 base58.b58decode(recipient) + \
-                struct.pack(">H", len(attachment)) + \
-                pwcrypto.str2bytes(attachment)
+                struct.pack(">H", len(attachment))
     elif tx_type == 8: # start lease
         sData += base58.b58decode(publicKey) + \
                 base58.b58decode(recipient) + \
@@ -204,40 +158,42 @@ while (True):
         try:
             dongle = getDongle(True)
         except Exception as e:
-            answer = raw_input(
-                "Please connect your Ledger Nano S, unlock, and launch the LTO Network app. Press <enter> when ready. (Q quits)")
+            answer = raw_input(Fore.RED + Fore.BRIGHT + 
+                "Please connect your Ledger Nano S, unlock, and launch the LTO Network app. Press <enter> when ready. (Q quits)" + Fore.WHITE)
             if (answer.upper() == 'Q'):
                 sys.exit(0)
             sys.exc_clear()
 
     print("")
-    print(colors.fg.lightcyan + colors.bold + "Ledger Nano S - LTO Network test app" + colors.reset)
-    print(colors.fg.white + "\t 1. Get PublicKey/Address from Ledger Nano S" + colors.reset)
-    print(colors.fg.white + "\t 2. Sign transfer using Ledger Nano S" + colors.reset)
-    print(colors.fg.white + "\t 3. Sign start lease using Ledger Nano S" + colors.reset)
-    print(colors.fg.white + "\t 4. Sign cancel lease using Ledger Nano S" + colors.reset)
-    print(colors.fg.white + "\t 5. Get app version from Ledger Nano S" + colors.reset)
-    print(colors.fg.white + "\t 6. Exit" + colors.reset)
-    select = raw_input(colors.fg.cyan + "Please select> " + colors.reset)
+    print(Fore.CYAN + Style.BRIGHT + "Ledger Nano S - LTO Network cli app")
+    print("To copy text in Windows you must select the text and press enter. It will be saved in your clipboard.")
+    print("To paste text in Windows, do a right click in the console.")
+    print(Fore.WHITE + "\t 1. Get PublicKey/Address from Ledger Nano S")
+    print("\t 2. Sign transfer using Ledger Nano S")
+    print("\t 3. Sign start lease using Ledger Nano S")
+    print("\t 4. Sign cancel lease using Ledger Nano S")
+    print("\t 5. Get app version from Ledger Nano S")
+    print("\t 6. Exit")
+    select = raw_input(Fore.CYAN + "Please select> ")
 
     if (select == "1"):
         path = raw_input(
-            colors.fg.lightblue + "Please input BIP-32 path (default, press enter: \"44'/353'/0'/0'/0'\")> " + colors.reset)
+            Fore.BLUE + "Please input BIP-32 path (default, press enter: \"44'/353'/0'/0'/0'\")> " + Fore.WHITE + Style.DIM)
         if len(path) == 0:
             path = "44'/353'/0'/0'/0'"
         keys = getKeysFromDongle(expand_path(path), chain_id)
         if keys:
             publicKey = keys[0]
             address = keys[1]
-            print(colors.fg.blue + "publicKey (base58): " + colors.reset + base58.b58encode(str(publicKey)))
-            print(colors.fg.blue + "address: " + colors.reset + address)
+            print(Fore.BLUE + Style.BRIGHT + "publicKey (base58): " + base58.b58encode(str(publicKey)))
+            print("address: " + address)
     elif (select == "2" or select == "3" or select == "4"):
         path = raw_input(
-            colors.fg.lightblue + "Please input BIP-32 path (default, press enter: \"44'/353'/0'/0'/0'\")> " + colors.reset)
+            Fore.BLUE + "Please input BIP-32 path (default, press enter: \"44'/353'/0'/0'/0'\")> ")
         if len(path) == 0:
             path = "44'/353'/0'/0'/0'"
         binary_data = path_to_bytes(expand_path(path))
-        print(colors.fg.lightgrey + "path bytes: " + base58.b58encode(str(path_to_bytes(expand_path(path)))))
+        print(Fore.WHITE + Style.DIM + "path bytes: " + base58.b58encode(str(path_to_bytes(expand_path(path)))) + Style.BRIGHT)
 
         # tx amount asset decimals
         binary_data += chr(8)
@@ -256,25 +212,25 @@ while (True):
         elif select == "4":
             tx_type = 9
         
-        input = raw_input(colors.fg.lightblue + "Please input your public key> " + colors.reset)
+        input = raw_input(Fore.BLUE + "Please input your public key> ")
         if len(input) == 0:
             break
         else:
             publicKey = input
 
         if tx_type == 4 or tx_type == 8:
-            input = raw_input(colors.fg.lightblue + "Please input the recipient LTO address> " + colors.reset)
+            input = raw_input(Fore.BLUE + "Please input the recipient LTO address> ")
             if len(input) == 0:
                 break
             else:
                 recipient = input
-            input = raw_input(colors.fg.lightblue + "Please input the amount of LTO to send> " + colors.reset)
+            input = raw_input(Fore.BLUE + "Please input the amount of LTO to send> ")
             if len(input) == 0:
                 break
             else:
                 amount = int(input) * 100000000
         else:
-            input = raw_input(colors.fg.lightblue + "Please input the transaction Id of the lease to cancel> " + colors.reset)
+            input = raw_input(Fore.BLUE + "Please input the transaction Id of the lease to cancel> ")
             if len(input) == 0:
                 break
             else:
@@ -297,15 +253,15 @@ while (True):
                         p1 = 0x00
 
                     if (offset == 0):
-                        print("Waiting for approval to sign on the Ledger Nano S")
+                        print(Fore.WHITE + Style.BRIGHT + "Waiting for approval to sign on the Ledger Nano S" + Style.DIM)
 
                     apdu = bytes("8002".decode('hex')) + chr(p1) + chain_id + chr(len(chunk)) + bytes(chunk)
                     signature = dongle.exchange(apdu)
                     offset += len(chunk)
-                print(colors.bold + "\n     ** Transaction signed successfully **\n  Now broadcast it by pasting the JSON here:"
+                print(Fore.BLUE + Style.BRIGHT + "\n     ** Transaction signed successfully **\n  Now broadcast it by pasting the JSON here:"
 "\n  https://nodes.lto.network/api-docs/index.html#!/transactions/broadcast\n"
 "  Then you can track your transaction here: https://explorer.lto.network\n")
-                print(colors.fg.pink + "{\"senderPublicKey\":\"" + publicKey + "\",")
+                print(Fore.MAGENTA + "{\"senderPublicKey\":\"" + publicKey + "\",")
                 if tx_type == 4 or tx_type == 8:
                     print("\"amount\":" + str(amount) + ",")
                 print("\"signature\":\"" + base58.b58encode(str(signature)) + "\",")
@@ -315,15 +271,15 @@ while (True):
                 else:
                     print("\"recipient\":\"" + recipient + "\",")
                 print("\"type\":" + str(tx_type) + ",")
-                print("\"timestamp\":" + str(timestamp) + "}" + colors.reset)
+                print("\"timestamp\":" + str(timestamp) + "}")
                 break
             except CommException as e:
                 if (e.sw == 0x6990):
-                    print(colors.fg.red + "Transaction buffer max size reached." + colors.reset)
+                    print(Fore.RED + "Transaction buffer max size reached.")
                 if (e.sw == 0x6985):
-                    print(colors.fg.red + "Required condition failed." + colors.reset)
+                    print(Fore.RED + "Required condition failed.")
                 if (e.sw == 0x9100):
-                    print(colors.fg.red + "User denied signing request on Ledger Nano S device." + colors.reset)
+                    print(Fore.RED + "User denied signing request on Ledger Nano S device.")
                 break
             except Exception as e:
                 print(e, type(e))

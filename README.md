@@ -34,13 +34,20 @@ make clean
 ```
 
 
-# Run test app
+# Run cli app
 
-Once the app is compiled and loaded, you can try to communicate with it using the Python script.
+Once the Ledger app is compiled and/or loaded, you can try to communicate with it using the cli app.
+You can download the precompiled binaries from the *releases* tag inside this repository. Make sure you download the correcty binary for your platform.
+Then execute the binary and the app will guide you throught the process.
+
+You can also run the cli app from source, it is just a Python script located at the python/ folder. 
+Python 2.7 is required for this, latest releases are found here [here](https://www.python.org/downloads/release/python-2716/).
 
 Install dependencies:
 ```bash
-pip install -r python2.7-dependencies.txt --no-index
+pip install ledgerblue
+pip install colorama
+pip install base58
 ```
 
 Then enter the LTO Network app on your ledger and start the script_
