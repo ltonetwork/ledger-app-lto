@@ -30,12 +30,12 @@ APPNAME = "LTO Network"
 APPVERSION = $(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)
 
 ifeq ($(TARGET_NAME),TARGET_BLUE)
-# TODO: 50x50 rounded image
+	ICONNAME=blue_app_lto.gif
 else
 	ifeq ($(TARGET_NAME),TARGET_NANOX)
-ICONNAME = nanox_app_lto.gif
+		ICONNAME=nanox_app_lto.gif
 	else
-ICONNAME=nanos_app_lto.gif
+		ICONNAME=nanos_app_lto.gif
 	endif
 endif
 

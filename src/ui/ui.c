@@ -178,6 +178,8 @@ void menu_sign_init() {
             os_memmove(&ui_context.line1, &"cancel leasing\0", 15);
         } else if (tx_type == 11) {
             os_memmove(&ui_context.line1, &"mass transfer\0", 14);
+        } else if (tx_type == 13) {
+             os_memmove(&ui_context.line1, &"set script\0", 11);
         } else if (tx_type == 15) {
             os_memmove(&ui_context.line1, &"anchor\0", 7);
         } else {

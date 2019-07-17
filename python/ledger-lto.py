@@ -158,7 +158,7 @@ while (True):
         try:
             dongle = getDongle(True)
         except Exception as e:
-            answer = raw_input(Fore.RED + Fore.BRIGHT + 
+            answer = raw_input(Fore.RED + Style.BRIGHT + 
                 "Please connect your Ledger Nano S, unlock, and launch the LTO Network app. Press <enter> when ready. (Q quits)" + Fore.WHITE)
             if (answer.upper() == 'Q'):
                 sys.exit(0)
