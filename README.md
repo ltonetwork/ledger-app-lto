@@ -2,17 +2,17 @@
 Community made LTO Network wallet application for Ledger Nano S/X/Blue
 
 # Introduction
-This is a wallet application for the LTO Network blockchain done by a member of the community.
+This is a Ledger device wallet application for the LTO Network blockchain done by a community member.
 
 It is compliant with [LTO Network cryptographic specifications](https://docs.lto.network/project/developer-area/lto_protocol/cryptographic_details). 
 
 It can be tested quickly using the python script located at [python/ledger-lto.py](https://github.com/iicc1/ledger-app-lto-network-unofficial/tree/master/python).
 
-Special thanks to Ledger team and Waves community.
+Special thanks to Ledger team, Waves community and LTO Network team.
 
 # Building
 
-In order to build this application you need to create a Ledger development environment.  More information can be 
+In order to build this application you need to create a Ledger development environment. More information can be 
 found here: https://ledger.readthedocs.io/en/latest/userspace/getting_started.html
 
 
@@ -50,7 +50,12 @@ pip install colorama
 pip install base58
 ```
 
-Then enter the LTO Network app on your ledger and start the script_
+Then enter the LTO Network app on your ledger and start the script:
 ```bash
 python python/ledger-lto.py
 ```
+
+
+# Web app
+
+There is also a Vuejs web app project located here: https://github.com/iicc1/lto-ledger-vue
