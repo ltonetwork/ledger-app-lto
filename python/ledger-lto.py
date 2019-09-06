@@ -20,7 +20,7 @@
 # *
 # *  Script edited and improved by iicc1 to support LTO Network blockchain.
 # *  with more features, less dependencies and fully plaftorm independent.
-# *  https://github.com/iicc1/ledger-app-lto-network-unofficial
+# *  https://github.com/iicc1/ledger-app-lto
 # *
 # ********************************************************************************
 
