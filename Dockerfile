@@ -4,8 +4,6 @@ LABEL maintainer="Ignacio Iglesias <contacto@ignacio.xyz>"
 VOLUME ["/code"]
 WORKDIR /code
 
-COPY docker-entrypoint.sh /usr/local/bin/
-
 ENV BOLOS_ENV /opt/bolos-env
 ENV BOLOS_SDK /opt/bolos-sdk
 
@@ -35,5 +33,8 @@ ENV PATH /opt/bolos-env/clang-arm-fropi/bin:/opt/bolos-env/gcc-arm-none-eabi-8-2
 RUN echo "Download Ledger Nano S SDK" && \
   git clone --branch og-1.6.0-1 https://github.com/LedgerHQ/nanos-secure-sdk.git ${BOLOS_SDK}
 
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod 777 /usr/local/bin/docker-entrypoint.sh \
+    && ln -s /usr/local/bin/docker-entrypoint.sh /
 
 ENTRYPOINT ["docker-entrypoint.sh"]
