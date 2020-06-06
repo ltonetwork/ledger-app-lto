@@ -1,5 +1,5 @@
 # Ledger BOLOS application for LTO Network
-![Docker build](https://img.shields.io/docker/build/ignacioxyz/lto-ledger-devenv?style=flat-square)  ![Docker pulls](https://img.shields.io/docker/pulls/ignacioxyz/lto-ledger-devenv?style=flat-square)
+![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/ignacioxyz/lto-ledger-devenv?style=for-the-badge) ![Docker Pulls](https://img.shields.io/docker/pulls/ignacioxyz/lto-ledger-devenv?style=for-the-badge)
 
 Community made LTO Network wallet application for Ledger devices.
 
