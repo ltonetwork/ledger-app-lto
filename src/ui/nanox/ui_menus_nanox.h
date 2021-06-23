@@ -27,7 +27,7 @@ UX_STEP_NOCB(
 UX_STEP_VALID(
     ux_idle_flow_3_step,
     pb,
-    sched_exit(-1),
+    os_sched_exit(-1),
     {
       &C_icon_dashboard_x,
       "Quit",

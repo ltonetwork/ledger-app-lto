@@ -39,10 +39,10 @@
 
 #ifdef TARGET_NANOX
 #include "ux.h"
-_mbstate_t G_ux;
+ux_state_t G_ux;
 bolos_ux_params_t G_ux_params;
 #else
-_mbstate_t ux;
+ux_state_t ux;
 #endif // TARGET_NANOX
 
 // UI currently displayed

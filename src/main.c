@@ -33,6 +33,8 @@
 #include "cx.h"
 #include "os_io_seproxyhal.h"
 
+#include "ux.h"
+
 // Temporary area to sore stuff and reuse the same memory
 tmpContext_t tmp_ctx;
 uiContext_t ui_context;
@@ -166,7 +168,7 @@ void handle_apdu(volatile unsigned int *flags, volatile unsigned int *tx, volati
     BEGIN_TRY {
         TRY {
 
-            if (global_pin_is_validated() == 0) {
+            if (os_global_pin_is_validated() == 0) {
                 THROW(SW_DEVICE_IS_LOCKED);
             }
             
@@ -388,7 +390,7 @@ unsigned char io_event(unsigned char channel) {
 void app_exit(void) {
     BEGIN_TRY_L(exit) {
         TRY_L(exit) {
-            sched_exit(-1);
+            os_sched_exit(-1);
         }
         FINALLY_L(exit) {
         }
@@ -401,7 +403,7 @@ __attribute__((section(".boot"))) int main(void) {
     __asm volatile("cpsie i");
 
     // ensure exception will work as planned
-    boot();
+    os_boot();
 
     for (;;) {
         UX_INIT();

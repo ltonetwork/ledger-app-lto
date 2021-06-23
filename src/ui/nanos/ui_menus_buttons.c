@@ -3,6 +3,8 @@
 #include "../ui_logic.h"
 #include "os_io_seproxyhal.h"
 
+#include "ux.h"
+
 #if defined(TARGET_NANOS)
 unsigned int ui_verify_transfer_nanos_button(unsigned int button_mask, unsigned int button_mask_counter) {
     switch (button_mask) {
