@@ -23,11 +23,11 @@ void lto_public_key_to_address(const ed25519_public_key public_key, const unsign
     address[0] = 0x01;
     address[1] = network_byte;
 
-    os_memmove(&address[2], public_key_hash, 20);
+    memmove(&address[2], public_key_hash, 20);
 
     lto_secure_hash(address, 22, checksum);
 
-    os_memmove(&address[22], checksum, 4);
+    memmove(&address[22], checksum, 4);
 
     size_t length = 36;
     b58enc((char *) output, &length, address, 26);

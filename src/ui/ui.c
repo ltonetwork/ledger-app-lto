@@ -39,10 +39,10 @@
 
 #ifdef TARGET_NANOX
 #include "ux.h"
-ux_state_t G_ux;
+_mbstate_t G_ux;
 bolos_ux_params_t G_ux_params;
 #else
-ux_state_t ux;
+_mbstate_t ux;
 #endif // TARGET_NANOX
 
 // UI currently displayed
@@ -84,7 +84,7 @@ void ui_idle() {
 
 // Show the transaction details for the user to approve
 void menu_sign_init() {
-    os_memset((unsigned char *) &ui_context, 0, sizeof(uiContext_t));
+    memset((unsigned char *) &ui_context, 0, sizeof(uiContext_t));
     unsigned char tx_type = tmp_ctx.signing_context.data_type;
     unsigned char tx_version = tmp_ctx.signing_context.data_version;
 
@@ -100,9 +100,9 @@ void menu_sign_init() {
         lto_public_key_to_address((const unsigned char *) &tmp_ctx.signing_context.buffer[processed], tmp_ctx.signing_context.network_byte, (unsigned char *) ui_context.line7);
         processed += 32;
 
-        os_memmove((char *) ui_context.line2, LTO_CONST, 5);
+        memmove((char *) ui_context.line2, LTO_CONST, 5);
 
-        os_memmove((char *) ui_context.line5, LTO_CONST, 5);
+        memmove((char *) ui_context.line5, LTO_CONST, 5);
 
         // timestamp;
         processed += 8;
@@ -131,7 +131,7 @@ void menu_sign_init() {
           copy_in_reverse_order((unsigned char *) &alias_size, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 2);
           processed += 2;
 
-          os_memmove((unsigned char *) ui_context.line3, (const unsigned char *) &tmp_ctx.signing_context.buffer[processed], alias_size);
+          memmove((unsigned char *) ui_context.line3, (const unsigned char *) &tmp_ctx.signing_context.buffer[processed], alias_size);
           processed += alias_size;
         }
 
@@ -141,11 +141,11 @@ void menu_sign_init() {
         processed += 2;
 
         if (attachment_size > 41) {
-          os_memmove((unsigned char *) &ui_context.line6[41], &"...\0", 4);
+          memmove((unsigned char *) &ui_context.line6[41], &"...\0", 4);
           attachment_size = 41;
         }
 
-        os_memmove((unsigned char *) ui_context.line6, (const unsigned char *) &tmp_ctx.signing_context.buffer[processed], attachment_size);
+        memmove((unsigned char *) ui_context.line6, (const unsigned char *) &tmp_ctx.signing_context.buffer[processed], attachment_size);
         processed += attachment_size;
 
         // id
@@ -169,36 +169,36 @@ void menu_sign_init() {
         #endif // #if TARGET_ID
         return;
     } else {
-        os_memmove(&ui_context.line2, &"Transaction Id\0", 15);
+        memmove(&ui_context.line2, &"Transaction Id\0", 15);
         if (tx_type == 4) {
-            os_memmove(&ui_context.line1, &"transfer\0", 9);
+            memmove(&ui_context.line1, &"transfer\0", 9);
         } else if (tx_type == 8) {
-            os_memmove(&ui_context.line1, &"start leasing\0", 14);
+            memmove(&ui_context.line1, &"start leasing\0", 14);
         } else if (tx_type == 9) {
-            os_memmove(&ui_context.line1, &"cancel leasing\0", 15);
+            memmove(&ui_context.line1, &"cancel leasing\0", 15);
         } else if (tx_type == 11) {
-            os_memmove(&ui_context.line1, &"mass transfer\0", 14);
+            memmove(&ui_context.line1, &"mass transfer\0", 14);
         } else if (tx_type == 13) {
-             os_memmove(&ui_context.line1, &"set script\0", 11);
+            memmove(&ui_context.line1, &"set script\0", 11);
         } else if (tx_type == 15) {
-            os_memmove(&ui_context.line1, &"anchor\0", 7);
+            memmove(&ui_context.line1, &"anchor\0", 7);
         } else {
             // type byte >200 are 'reserved', it will not be signed
-            os_memmove(&ui_context.line2, &"Hash\0", 5);
+            memmove(&ui_context.line2, &"Hash\0", 5);
             if (tx_type == 252) {
-                os_memmove(&ui_context.line1, &"order\0", 6);
+                memmove(&ui_context.line1, &"order\0", 6);
             } else if (tx_type == 253) {
-                os_memmove(&ui_context.line1, &"data\0", 5);
+                memmove(&ui_context.line1, &"data\0", 5);
             } else if (tx_type == 254) {
-                os_memmove(&ui_context.line1, &"request\0", 8);
+                memmove(&ui_context.line1, &"request\0", 8);
             } else if (tx_type == 255) {
-                os_memmove(&ui_context.line1, &"message\0", 8);
+                memmove(&ui_context.line1, &"message\0", 8);
             }
         }
     }
 
     if (strlen((const char *) ui_context.line1) == 0) {
-        os_memmove(&ui_context.line1, &"transaction\0", 12);
+        memmove(&ui_context.line1, &"transaction\0", 12);
     }
     // id
     unsigned char id[32];

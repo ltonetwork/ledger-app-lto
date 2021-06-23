@@ -30,10 +30,10 @@
 
 #ifdef TARGET_NANOX
 #include "ux.h"
-extern ux_state_t G_ux;
+extern _mbstate_t G_ux;
 extern bolos_ux_params_t G_ux_params;
 #else // TARGET_NANOX
-extern ux_state_t ux;
+extern _mbstate_t ux;
 #endif // TARGET_NANOX
 
 enum UI_STATE { UI_IDLE, UI_VERIFY };
