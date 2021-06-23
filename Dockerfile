@@ -31,10 +31,10 @@ RUN echo "Install custom clang" && \
 ENV PATH /opt/bolos-env/clang-arm-fropi/bin:/opt/bolos-env/gcc-arm-none-eabi-8-2018-q4-major/bin:$PATH
 
 RUN echo "Download Ledger Nano S SDK" && \
-  git clone --branch og-1.6.0-1 https://github.com/LedgerHQ/nanos-secure-sdk.git ${BOLOS_SDK}
+  git clone --branch 2.0.0-1 https://github.com/LedgerHQ/nanos-secure-sdk.git ${BOLOS_SDK}
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod 777 /usr/local/bin/docker-entrypoint.sh \
     && ln -s /usr/local/bin/docker-entrypoint.sh /
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
