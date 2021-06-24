@@ -25,14 +25,12 @@
 #include "main.h"
 #include "crypto/lto.h"
 #include "crypto/ledger_crypto.h"
-#include "os_io_seproxyhal.h"
 
 // Ledger Stuff
 #include "ui/ui.h"
 #include "os.h"
 #include "cx.h"
 #include "os_io_seproxyhal.h"
-
 #include "ux.h"
 
 // Temporary area to sore stuff and reuse the same memory
@@ -415,7 +413,7 @@ __attribute__((section(".boot"))) int main(void) {
 
 #ifdef TARGET_NANOX
                 // grab the current plane mode setting
-                G_io_app.plane_mode = setting_get(OS_SETTING_PLANEMODE, NULL, 0);
+                G_io_app.plane_mode = os_setting_get(OS_SETTING_PLANEMODE, NULL, 0);
 #endif // TARGET_NANOX
 
                 init_context();
