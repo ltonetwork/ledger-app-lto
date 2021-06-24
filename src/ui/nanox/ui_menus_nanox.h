@@ -24,8 +24,15 @@ UX_STEP_NOCB(
       "Version",
       APPVERSION,
     });
-UX_STEP_VALID(
+UX_STEP_NOCB(
     ux_idle_flow_3_step,
+    bn,
+    {
+      "Developed by",
+      "Stakely.io",
+    });
+UX_STEP_VALID(
+    ux_idle_flow_4_step,
     pb,
     os_sched_exit(-1),
     {
