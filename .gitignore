@@ -60,3 +60,5 @@ dkms.conf
 debug/
 .DS_Store
 *.pyc
+src/glyphs.h
+src/glyphs.c
