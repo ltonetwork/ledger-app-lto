@@ -70,11 +70,11 @@ And finally, load the App:
 
 _Python_
 ```
-python -m ledgerblue.loadApp --appFlags 0x240 --path "44'/353'" --curve secp256k1 --curve ed25519 --tlv --targetId 0x31100004 --delete --fileName bin/app.hex --appName "LTO Network" --appVersion 1.0.0 --dataSize 64 --icon 010000000000ffffffffffffffffffffffbffd7ffedffbb7ed67e6cff39ff97ffe7ffeffffffffffff
+python -m ledgerblue.loadApp --appFlags 0x240 --path "44'/353'" --curve secp256k1 --curve ed25519 --tlv --targetId 0x31100004 --delete --fileName bin/app.hex --appName "LTO Network" --appVersion 2.0.0 --dataSize 64 --icon 010000000000ffffffffffffffffffffffbffd7ffedffbb7ed67e6cff39ff97ffe7ffeffffffffffff
 ```
 _Python3_
 ```
-python3 -m ledgerblue.loadApp --appFlags 0x240 --path "44'/353'" --curve secp256k1 --curve ed25519 --tlv --targetId 0x31100004 --delete --fileName bin/app.hex --appName "LTO Network" --appVersion 1.0.0 --dataSize 64 --icon 010000000000ffffffffffffffffffffffbffd7ffedffbb7ed67e6cff39ff97ffe7ffeffffffffffff
+python3 -m ledgerblue.loadApp --appFlags 0x240 --path "44'/353'" --curve secp256k1 --curve ed25519 --tlv --targetId 0x31100004 --delete --fileName bin/app.hex --appName "LTO Network" --appVersion 0.0.0 --dataSize 64 --icon 010000000000ffffffffffffffffffffffbffd7ffedffbb7ed67e6cff39ff97ffe7ffeffffffffffff
 ```
 After this, the installation process will start, asking for your permission on the Ledger screen.
 
