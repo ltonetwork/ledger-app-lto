@@ -3,6 +3,8 @@
 
 Community made LTO Network wallet application for Ledger devices.
 
+<br>
+
 # Introduction
 Ledger device wallet application for the LTO Network blockchain developed by a community member.
 
@@ -14,18 +16,20 @@ There is a ready to use web app interface [here](https://lto-ledger-beta.netlify
 
 Special thanks to Ledger team, Waves community and, LTO Network team.
 
-[User guide](https://github.com/iicc1/ledger-app-lto/wiki/How-to-use-a-Ledger-device-with-LTO-Network)
+LTO Network Ledger APP [User Guide](https://github.com/iicc1/ledger-app-lto/wiki/How-to-use-a-Ledger-device-with-LTO-Network)
 
+<br>
 
 # Building
 
 To build this application you need to create a Ledger development environment. More information can be 
-found [here](https://ledger.readthedocs.io/en/latest/userspace/getting_started.html).
+found [here](https://ledger.readthedocs.io/en/latest/userspace/setup.html).
 
 Alternatively, you can use my Docker image to compile the App with just one command.
 
+<br>
 
-## Prerequisites
+# Prerequisites
 
 First, you must have Docker and Python 2 or 3 installed.
 - Docker installation instructions: https://docs.docker.com/engine/install/
@@ -35,8 +39,11 @@ Docker is used to compile the App from source and Python to load it into your de
 
 Next, download or clone this repository into a folder. If you have downloaded it, remember to extract it.
 
+<br>
 
-## Compiling
+# Compiling
+
+## Ledger Nano S
 
 Open a terminal inside the folder where the repository was downloaded and enter the following command:
 
@@ -50,8 +57,33 @@ docker run -v %cd%:/code ignacioxyz/lto-ledger-devenv 'make'
 ```
 This command will download my Docker image from DockerHub and build the Ledger App, creating several folders within the current folder.
 
+<br>
 
-## Uploading
+## Ledger Nano X
+
+The Docker image uploaded to my Dockerhub uses the Ledger Nano S SDK. To compile this APP for a Ledger Nano X device, you need to build the Docker Image with the Nano X SDK.
+
+
+To do this, edit the SDK download step in the Dockerfike
+```
+RUN echo "Download Ledger Nano X SDK" && \
+  git clone --branch 1.2.4-5.1 https://github.com/LedgerHQ/nanox-secure-sdk.git ${BOLOS_SDK}
+```
+
+Build the Ledger image locally
+```
+docker build -t sdknanox .
+```
+
+And build the Ledger Nano X APP
+```
+docker run -v ${PWD}:/code sdknanox:latest 'make TARGET_NAME=TARGET_NANOX'
+```
+<br>
+
+# Uploading
+
+## Nano S
 
 Now we will use Python to upload the App to your device.
 
@@ -74,9 +106,17 @@ python -m ledgerblue.loadApp --appFlags 0x240 --path "44'/353'" --curve secp256k
 ```
 _Python3_
 ```
-python3 -m ledgerblue.loadApp --appFlags 0x240 --path "44'/353'" --curve secp256k1 --curve ed25519 --tlv --targetId 0x31100004 --delete --fileName bin/app.hex --appName "LTO Network" --appVersion 0.0.0 --dataSize 64 --icon 010000000000ffffffffffffffffffffffbffd7ffedffbb7ed67e6cff39ff97ffe7ffeffffffffffff
+python3 -m ledgerblue.loadApp --appFlags 0x240 --path "44'/353'" --curve secp256k1 --curve ed25519 --tlv --targetId 0x31100004 --delete --fileName bin/app.hex --appName "LTO Network" --appVersion 2.0.0 --dataSize 64 --icon 010000000000ffffffffffffffffffffffbffd7ffedffbb7ed67e6cff39ff97ffe7ffeffffffffffff
 ```
 After this, the installation process will start, asking for your permission on the Ledger screen.
+
+<br>
+
+## Nano X
+Unfortunately, at the time of writing, there is no way to load a non-official Ledger APP into a Ledger Nano X.
+There is a Ledger Nano X emulator called [Speculos](https://speculos.ledger.com/)
+
+<br>
 
 # Run CLI app
 
@@ -99,6 +139,7 @@ Then enter the LTO Network app on your ledger and start the script:
 python python/ledger-lto.py
 ```
 
+<br>
 
 # Web app
 
