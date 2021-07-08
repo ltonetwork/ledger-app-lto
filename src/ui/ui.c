@@ -97,12 +97,8 @@ void menu_sign_init() {
         }
 
         // Sender public key 32 bytes
-        lto_public_key_to_address((const unsigned char *) &tmp_ctx.signing_context.buffer[processed], tmp_ctx.signing_context.network_byte, (unsigned char *) ui_context.line7);
+        lto_public_key_to_address((const unsigned char *) &tmp_ctx.signing_context.buffer[processed], tmp_ctx.signing_context.network_byte, (unsigned char *) ui_context.line5);
         processed += 32;
-
-        memmove((char *) ui_context.line2, LTO_CONST, 5);
-
-        memmove((char *) ui_context.line5, LTO_CONST, 5);
 
         // timestamp;
         processed += 8;
@@ -114,13 +110,13 @@ void menu_sign_init() {
 
         uint64_t fee = 0;
         copy_in_reverse_order((unsigned char *) &fee, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 8);
-        print_amount(fee, tmp_ctx.signing_context.fee_decimals, (unsigned char*) ui_context.line4, 45);
+        print_amount(fee, tmp_ctx.signing_context.fee_decimals, (unsigned char*) ui_context.line3, 45);
         processed += 8;
 
-        // address or alias flag is a part of address
+        // To address or alias flag is a part of address
         if (tmp_ctx.signing_context.buffer[processed] == 1) {
           size_t length = 45;
-          if (!b58enc((char *) ui_context.line3, &length, (const void *) &tmp_ctx.signing_context.buffer[processed], 26)) {
+          if (!b58enc((char *) ui_context.line2, &length, (const void *) &tmp_ctx.signing_context.buffer[processed], 26)) {
               THROW(SW_CONDITIONS_NOT_SATISFIED);
           }
           processed += 26;
@@ -131,7 +127,7 @@ void menu_sign_init() {
           copy_in_reverse_order((unsigned char *) &alias_size, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 2);
           processed += 2;
 
-          memmove((unsigned char *) ui_context.line3, (const unsigned char *) &tmp_ctx.signing_context.buffer[processed], alias_size);
+          memmove((unsigned char *) ui_context.line2, (const unsigned char *) &tmp_ctx.signing_context.buffer[processed], alias_size);
           processed += alias_size;
         }
 
@@ -141,23 +137,23 @@ void menu_sign_init() {
         processed += 2;
 
         if (attachment_size > 41) {
-          memmove((unsigned char *) &ui_context.line6[41], &"...\0", 4);
+          memmove((unsigned char *) &ui_context.line4[41], &"...\0", 4);
           attachment_size = 41;
         }
 
-        memmove((unsigned char *) ui_context.line6, (const unsigned char *) &tmp_ctx.signing_context.buffer[processed], attachment_size);
+        memmove((unsigned char *) ui_context.line4, (const unsigned char *) &tmp_ctx.signing_context.buffer[processed], attachment_size);
         processed += attachment_size;
 
         // id
         unsigned char id[32];
         blake2b_256((unsigned char *) tmp_ctx.signing_context.buffer, tmp_ctx.signing_context.buffer_used, &id);
         size_t length = 45;
-        if (!b58enc((char *) ui_context.line8, &length, (const void *) &id, 32)) {
+        if (!b58enc((char *) ui_context.line6, &length, (const void *) &id, 32)) {
           THROW(SW_CONDITIONS_NOT_SATISFIED);
         }
 
         // Set the step/step count, and ui_state before requesting the UI
-        ux_step = 0; ux_step_count = 9;
+        ux_step = 0; ux_step_count = 7;
         ui_state = UI_VERIFY;
 
         #if defined(TARGET_BLUE)
@@ -165,13 +161,13 @@ void menu_sign_init() {
         #elif defined(TARGET_NANOS)
             UX_DISPLAY(ui_verify_transfer_nanos, ui_verify_transfer_prepro);
         #elif defined(TARGET_NANOX)
-            ux_flow_init(0, ux_transfer_flow, NULL);
+            ux_flow_init(0, ux_transfer_flow, NULL); // TODO
         #endif // #if TARGET_ID
         return;
     
     // Start lease
     } else if (tx_type == 8) {
-        memmove(&ui_context.line1, &"start leasing\0", 14);
+        memmove(&ui_context.line1, &"Start Leasing\0", 14);
 
         // Header
         unsigned int processed = 1;
@@ -206,13 +202,18 @@ void menu_sign_init() {
         print_amount(amount, tmp_ctx.signing_context.amount_decimals, (unsigned char*) ui_context.line3, 45);
         processed += 8;
 
+        // Fee amount
+        uint64_t fee = 0;
+        copy_in_reverse_order((unsigned char *) &fee, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 8);
+        print_amount(fee, tmp_ctx.signing_context.fee_decimals, (unsigned char*) ui_context.line4, 45);
+        processed += 8;
         
-        // id
-        memmove(&ui_context.line4, &"Transaction Id\0", 15);
+        // TX id
+        memmove(&ui_context.line5, &"Transaction Id\0", 15);
         unsigned char id[32];
         blake2b_256((unsigned char *) tmp_ctx.signing_context.buffer, tmp_ctx.signing_context.buffer_used, &id);
         size_t length = 45;
-        if (!b58enc((char *) ui_context.line5, &length, (const void *) &id, 32)) {
+        if (!b58enc((char *) ui_context.line6, &length, (const void *) &id, 32)) {
             THROW(SW_CONDITIONS_NOT_SATISFIED);
         }
 
@@ -221,9 +222,9 @@ void menu_sign_init() {
 
         get_ed25519_public_key_for_path((uint32_t *) tmp_ctx.signing_context.bip32, &public_key);
 
-        lto_public_key_to_address(public_key.W, tmp_ctx.signing_context.network_byte, ui_context.line6);
+        lto_public_key_to_address(public_key.W, tmp_ctx.signing_context.network_byte, ui_context.line7);
 
-        ux_step = 0; ux_step_count = 5;
+        ux_step = 0; ux_step_count = 6;
         ui_state = UI_VERIFY;
         #if defined(TARGET_BLUE)
             UX_DISPLAY(ui_approval_blue, ui_approval_blue_prepro);
@@ -231,6 +232,52 @@ void menu_sign_init() {
             UX_DISPLAY(ui_verify_start_lease_nanos, ui_verify_start_lease_prepro);
         #elif defined(TARGET_NANOX)
             ux_flow_init(0, ux_start_lease_flow, NULL);
+        #endif // #if TARGET_ID
+        return;
+
+    // Cancel lease
+    } else if (tx_type == 9) {
+        memmove(&ui_context.line1, &"Cancel Lease\0", 13);
+
+        // Header
+        unsigned int processed = 1;
+        if (tx_version == 2) {
+            processed += 1;
+        }
+
+        // Sender public key 32 bytes
+        processed += 32;
+
+        // Fee amount
+        uint64_t fee = 0;
+        copy_in_reverse_order((unsigned char *) &fee, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 8);
+        print_amount(fee, tmp_ctx.signing_context.fee_decimals, (unsigned char*) ui_context.line2, 45);
+        processed += 8;
+        
+        // TX id
+        memmove(&ui_context.line3, &"Transaction Id\0", 15);
+        unsigned char id[32];
+        blake2b_256((unsigned char *) tmp_ctx.signing_context.buffer, tmp_ctx.signing_context.buffer_used, &id);
+        size_t length = 45;
+        if (!b58enc((char *) ui_context.line4, &length, (const void *) &id, 32)) {
+            THROW(SW_CONDITIONS_NOT_SATISFIED);
+        }
+
+        // Get the public key and return it.
+        cx_ecfp_public_key_t public_key;
+
+        get_ed25519_public_key_for_path((uint32_t *) tmp_ctx.signing_context.bip32, &public_key);
+
+        lto_public_key_to_address(public_key.W, tmp_ctx.signing_context.network_byte, ui_context.line5);
+
+        ux_step = 0; ux_step_count = 4;
+        ui_state = UI_VERIFY;
+        #if defined(TARGET_BLUE)
+            UX_DISPLAY(ui_approval_blue, ui_approval_blue_prepro);
+        #elif defined(TARGET_NANOS)
+            UX_DISPLAY(ui_verify_cancel_lease_nanos, ui_verify_cancel_lease_prepro);
+        #elif defined(TARGET_NANOX)
+            ux_flow_init(0, ux_start_lease_flow, NULL); // TODO
         #endif // #if TARGET_ID
         return;
 
