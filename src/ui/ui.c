@@ -131,7 +131,7 @@ void menu_sign_init() {
           processed += alias_size;
         }
 
-        // in bytes
+        // Attachment
         uint16_t attachment_size = 0;
         copy_in_reverse_order((unsigned char *) &attachment_size, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 2);
         processed += 2;
@@ -167,7 +167,7 @@ void menu_sign_init() {
     
     // Start lease
     } else if (tx_type == 8) {
-        memmove(&ui_context.line1, &"Start Leasing\0", 14);
+        memmove(&ui_context.line1, &"Start Lease\0", 12);
 
         // Header
         unsigned int processed = 1;
@@ -200,6 +200,9 @@ void menu_sign_init() {
         uint64_t amount = 0;
         copy_in_reverse_order((unsigned char *) &amount, (const unsigned char *) &tmp_ctx.signing_context.buffer[processed], 8);
         print_amount(amount, tmp_ctx.signing_context.amount_decimals, (unsigned char*) ui_context.line3, 45);
+        processed += 8;
+
+        // timestamp;
         processed += 8;
 
         // Fee amount
@@ -277,19 +280,72 @@ void menu_sign_init() {
         #elif defined(TARGET_NANOS)
             UX_DISPLAY(ui_verify_cancel_lease_nanos, ui_verify_cancel_lease_prepro);
         #elif defined(TARGET_NANOX)
-            ux_flow_init(0, ux_start_lease_flow, NULL); // TODO
+            ux_flow_init(0, ux_cancel_lease_flow, NULL);
+        #endif // #if TARGET_ID
+        return;
+
+    // Aanchor
+    } else if (tx_type == 15) {
+        memmove(&ui_context.line1, &"Anchor\0", 7);
+
+        // Header
+        unsigned int processed = 1;
+        if (tx_version == 2) {
+            processed += 1;
+        }
+        processed += 1;
+        
+        // Sender public key 32 bytes
+        processed += 32;
+
+        // Anchor number
+        processed += 2;
+
+        // Anchor Length
+        uint16_t anchor_size = 0;
+        copy_in_reverse_order((unsigned char *) &anchor_size, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 2);
+        processed += 2;
+        processed += anchor_size;
+
+        // timestamp;
+        processed += 8;
+
+        // Fee amount
+        uint64_t fee = 0;
+        copy_in_reverse_order((unsigned char *) &fee, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 8);
+        print_amount(fee, tmp_ctx.signing_context.fee_decimals, (unsigned char*) ui_context.line2, 45);
+        processed += 8;
+        
+        // TX id
+        memmove(&ui_context.line3, &"Transaction Id\0", 15);
+        unsigned char id[32];
+        blake2b_256((unsigned char *) tmp_ctx.signing_context.buffer, tmp_ctx.signing_context.buffer_used, &id);
+        size_t length = 45;
+        if (!b58enc((char *) ui_context.line4, &length, (const void *) &id, 32)) {
+            THROW(SW_CONDITIONS_NOT_SATISFIED);
+        }
+
+        // Get the public key and return it.
+        cx_ecfp_public_key_t public_key;
+
+        get_ed25519_public_key_for_path((uint32_t *) tmp_ctx.signing_context.bip32, &public_key);
+
+        lto_public_key_to_address(public_key.W, tmp_ctx.signing_context.network_byte, ui_context.line5);
+
+        ux_step = 0; ux_step_count = 4;
+        ui_state = UI_VERIFY;
+        #if defined(TARGET_BLUE)
+            UX_DISPLAY(ui_approval_blue, ui_approval_blue_prepro);
+        #elif defined(TARGET_NANOS)
+            UX_DISPLAY(ui_verify_anchor_nanos, ui_verify_anchor_prepro);
+        #elif defined(TARGET_NANOX)
+            ux_flow_init(0, ux_anchor_flow, NULL);
         #endif // #if TARGET_ID
         return;
 
     } else {
         memmove(&ui_context.line2, &"Transaction Id\0", 15);
-        if (tx_type == 4) {
-            memmove(&ui_context.line1, &"transfer\0", 9);
-        } else if (tx_type == 8) {
-            memmove(&ui_context.line1, &"start leasing\0", 14);
-        } else if (tx_type == 9) {
-            memmove(&ui_context.line1, &"cancel leasing\0", 15);
-        } else if (tx_type == 11) {
+        if (tx_type == 11) {
             memmove(&ui_context.line1, &"mass transfer\0", 14);
         } else if (tx_type == 13) {
             memmove(&ui_context.line1, &"set script\0", 11);

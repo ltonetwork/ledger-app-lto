@@ -94,6 +94,28 @@ const bagl_element_t * ui_verify_cancel_lease_prepro(const bagl_element_t *eleme
     return element;
 }
 
+const bagl_element_t * ui_verify_anchor_prepro(const bagl_element_t *element) {
+    if (element->component.userid > 0) {
+        unsigned int display = (ux_step == element->component.userid - 1);
+        if (display) {
+            switch (element->component.userid) {
+            case 1:
+                UX_CALLBACK_SET_INTERVAL(2000);
+                break;
+            case 2:
+            case 3:
+            case 4:
+                UX_CALLBACK_SET_INTERVAL(MAX(
+                    3000, 1000 + bagl_label_roundtrip_duration_ms(element, 7)));
+                break;
+            }
+        }
+        if (!display)
+             return NULL;
+    }
+    return element;
+}
+
 const bagl_element_t * ui_verify_transaction_prepro(const bagl_element_t *element) {
     if (element->component.userid > 0) {
         unsigned int display = (ux_step == element->component.userid - 1);
