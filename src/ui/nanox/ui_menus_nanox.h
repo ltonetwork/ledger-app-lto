@@ -8,8 +8,19 @@
 #include "cx.h"
 #include "ux.h"
 
-// Device idle
+// Helper function to display attachments
+void display_if_buffer_not_empty(char* buffer, size_t buffer_len){
+  if(strnlen(buffer, buffer_len) == 0){
+    if (G_ux.flow_stack[0].index < G_ux.flow_stack[0].prev_index) {
+      ux_flow_prev();
+    }
+    else if (G_ux.flow_stack[0].index > G_ux.flow_stack[0].prev_index) {
+      ux_flow_next();
+    }
+  }
+}
 
+// Device idle flow
 UX_STEP_NOCB(
     ux_idle_flow_1_step,
     pnn,
@@ -48,8 +59,7 @@ UX_FLOW(ux_idle_flow,
   &ux_idle_flow_4_step
 );
 
-// Verify address
-
+// Verify address flow
 UX_STEP_NOCB(
     ux_display_address_flow_1_step,
     pnn,
@@ -90,85 +100,59 @@ UX_FLOW(ux_display_address_flow,
   &ux_display_address_flow_6_step
 );
 
-// Transfer transaction
-
-void display_if_buffer_not_empty(char* buffer, size_t buffer_len){
-  if(strnlen(buffer, buffer_len) == 0){
-    if (G_ux.flow_stack[0].index < G_ux.flow_stack[0].prev_index) {
-      ux_flow_prev();
-    }
-    else if (G_ux.flow_stack[0].index > G_ux.flow_stack[0].prev_index) {
-      ux_flow_next();
-    }
-  }
-}
-
+// Transfer transaction flow
 UX_STEP_NOCB(ux_transfer_1_step,
     pnn,
     {
       &C_icon_eye,
       "Review",
-      "transfer",
+      "Transfer",
     });
 UX_STEP_NOCB(
     ux_transfer_2_step,
     bnnn_paging,
     {
-      .title = "Amount",
+      .title = "Amount (LTO)",
       .text = (const char *)ui_context.line1,
     });
 UX_STEP_NOCB(
     ux_transfer_3_step,
     bnnn_paging,
     {
-      .title = "Asset",
+      .title = "To",
       .text = (const char *)ui_context.line2,
     });
 UX_STEP_NOCB(
     ux_transfer_4_step,
     bnnn_paging,
     {
-      .title = "To",
+      .title = "Fees (LTO)",
       .text = (const char *)ui_context.line3,
     });
-UX_STEP_NOCB(
+UX_STEP_NOCB_INIT(
     ux_transfer_5_step,
     bnnn_paging,
+    display_if_buffer_not_empty(ui_context.line4, sizeof(ui_context.line4)),
     {
-      .title = "Fee",
+      .title = "Attachment",
       .text = (const char *)ui_context.line4,
     });
 UX_STEP_NOCB(
     ux_transfer_6_step,
     bnnn_paging,
     {
-      .title = "Fee asset",
+      .title = "From",
       .text = (const char *)ui_context.line5,
     });
-UX_STEP_NOCB_INIT(
+UX_STEP_NOCB(
     ux_transfer_7_step,
-    bnnn_paging,
-    display_if_buffer_not_empty(ui_context.line6, sizeof(ui_context.line6)),
-    {
-      .title = "Attachment",
-      .text = (const char *)ui_context.line6,
-    });
-UX_STEP_NOCB(
-    ux_transfer_8_step,
-    bnnn_paging,
-    {
-      .title = "From",
-      .text = (const char *)ui_context.line7,
-    });
-UX_STEP_NOCB(
-    ux_transfer_9_step,
     bnnn_paging,
     {
       .title = "Transaction Id",
-      .text = (const char *)ui_context.line8,
+      .text = (const char *)ui_context.line6,
     });
 UX_STEP_VALID(
-    ux_transfer_10_step,
+    ux_transfer_8_step,
     pbb,
     io_seproxyhal_touch_sign_approve(NULL),
     {
@@ -177,7 +161,7 @@ UX_STEP_VALID(
       "and send",
     });
 UX_STEP_VALID(
-    ux_transfer_11_step,
+    ux_transfer_9_step,
     pb,
     io_seproxyhal_cancel(NULL),
     {
@@ -194,14 +178,10 @@ UX_FLOW(ux_transfer_flow,
   &ux_transfer_6_step,
   &ux_transfer_7_step,
   &ux_transfer_8_step,
-  &ux_transfer_9_step,
-  &ux_transfer_10_step,
-  &ux_transfer_11_step
+  &ux_transfer_9_step
 );
 
-
-// Start Lease
-
+// Start lease transaction flow
 UX_STEP_NOCB(
     ux_start_lease_1_step, 
     bnnn_paging, 
@@ -220,25 +200,32 @@ UX_STEP_NOCB(
     ux_start_lease_3_step, 
     bnnn_paging, 
     {
-      .title = "Lease Amount",
+      .title = "Lease Amount (LTO)",
       .text = (const char *) ui_context.line3,
     });
 UX_STEP_NOCB(
     ux_start_lease_4_step, 
     bnnn_paging, 
     {
-      .title =(const char *) ui_context.line4,
-      .text = (const char *) ui_context.line5,
+      .title = "Fees (LTO)",
+      .text = (const char *) ui_context.line4,
     });
 UX_STEP_NOCB(
     ux_start_lease_5_step, 
     bnnn_paging, 
     {
-      .title = "From",
+      .title =(const char *) ui_context.line5,
       .text = (const char *) ui_context.line6,
     });
-UX_STEP_VALID(
+UX_STEP_NOCB(
     ux_start_lease_6_step, 
+    bnnn_paging, 
+    {
+      .title = "From",
+      .text = (const char *) ui_context.line7,
+    });
+UX_STEP_VALID(
+    ux_start_lease_7_step, 
     pbb, 
     io_seproxyhal_touch_sign_approve(NULL),
     {
@@ -247,7 +234,7 @@ UX_STEP_VALID(
       "and sign",
     });
 UX_STEP_VALID(
-    ux_start_lease_7_step, 
+    ux_start_lease_8_step, 
     pb, 
     io_seproxyhal_cancel(NULL),
     {
@@ -262,11 +249,123 @@ UX_FLOW(ux_start_lease_flow,
   &ux_start_lease_4_step,
   &ux_start_lease_5_step,
   &ux_start_lease_6_step,
-  &ux_start_lease_7_step
+  &ux_start_lease_7_step,
+  &ux_start_lease_8_step
 );
 
-// Generic transaction
+// Cancel lease transaction flow
+UX_STEP_NOCB(
+    ux_cancel_lease_1_step, 
+    bnnn_paging, 
+    {
+      .title = "Confirm",
+      .text = (const char *) ui_context.line1
+    });
+UX_STEP_NOCB(
+    ux_cancel_lease_2_step, 
+    bnnn_paging, 
+    {
+      .title = "Fees (LTO)",
+      .text = (const char *) ui_context.line2,
+    });
+UX_STEP_NOCB(
+    ux_cancel_lease_3_step, 
+    bnnn_paging, 
+    {
+      .title =(const char *) ui_context.line3,
+      .text = (const char *) ui_context.line4,
+    });
+UX_STEP_NOCB(
+    ux_cancel_lease_4_step, 
+    bnnn_paging, 
+    {
+      .title = "From",
+      .text = (const char *) ui_context.line5,
+    });
+UX_STEP_VALID(
+    ux_cancel_lease_5_step, 
+    pbb, 
+    io_seproxyhal_touch_sign_approve(NULL),
+    {
+      &C_icon_validate_14,
+      "Accept",
+      "and sign",
+    });
+UX_STEP_VALID(
+    ux_cancel_lease_6_step, 
+    pb, 
+    io_seproxyhal_cancel(NULL),
+    {
+      &C_icon_crossmark,
+      "Reject",
+    });
 
+UX_FLOW(ux_cancel_lease_flow,
+  &ux_cancel_lease_1_step,
+  &ux_cancel_lease_2_step,
+  &ux_cancel_lease_3_step,
+  &ux_cancel_lease_4_step,
+  &ux_cancel_lease_5_step,
+  &ux_cancel_lease_6_step
+);
+
+// Anchor transaction flow
+UX_STEP_NOCB(
+    ux_anchor_1_step, 
+    bnnn_paging, 
+    {
+      .title = "Confirm",
+      .text = (const char *) ui_context.line1
+    });
+UX_STEP_NOCB(
+    ux_anchor_2_step, 
+    bnnn_paging, 
+    {
+      .title = "Fees (LTO)",
+      .text = (const char *) ui_context.line2,
+    });
+UX_STEP_NOCB(
+    ux_anchor_3_step, 
+    bnnn_paging, 
+    {
+      .title =(const char *) ui_context.line3,
+      .text = (const char *) ui_context.line4,
+    });
+UX_STEP_NOCB(
+    ux_anchor_4_step, 
+    bnnn_paging, 
+    {
+      .title = "From",
+      .text = (const char *) ui_context.line5,
+    });
+UX_STEP_VALID(
+    ux_anchor_5_step, 
+    pbb, 
+    io_seproxyhal_touch_sign_approve(NULL),
+    {
+      &C_icon_validate_14,
+      "Accept",
+      "and sign",
+    });
+UX_STEP_VALID(
+    ux_anchor_6_step, 
+    pb, 
+    io_seproxyhal_cancel(NULL),
+    {
+      &C_icon_crossmark,
+      "Reject",
+    });
+
+UX_FLOW(ux_anchor_flow,
+  &ux_anchor_1_step,
+  &ux_anchor_2_step,
+  &ux_anchor_3_step,
+  &ux_anchor_4_step,
+  &ux_anchor_5_step,
+  &ux_anchor_6_step
+);
+
+// Generic transaction flow
 UX_STEP_NOCB(
     ux_verify_transaction_1_step, 
     bnnn_paging, 
