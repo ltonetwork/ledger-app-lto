@@ -202,13 +202,13 @@ void menu_sign_init() {
         print_amount(amount, tmp_ctx.signing_context.amount_decimals, (unsigned char*) ui_context.line3, 45);
         processed += 8;
 
-        // timestamp;
-        processed += 8;
-
         // Fee amount
         uint64_t fee = 0;
         copy_in_reverse_order((unsigned char *) &fee, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 8);
         print_amount(fee, tmp_ctx.signing_context.fee_decimals, (unsigned char*) ui_context.line4, 45);
+        processed += 8;
+
+        // timestamp;
         processed += 8;
         
         // TX id
