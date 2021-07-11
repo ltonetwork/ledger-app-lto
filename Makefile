@@ -41,6 +41,10 @@ endif
 
 APP_LOAD_PARAMS = --appFlags 0x240 --path "44'/353'" --curve secp256k1 --curve ed25519 $(COMMON_LOAD_PARAMS)
 
+# Ledger: add the "Pending security review" disclaimer
+APP_LOAD_PARAMS += --tlvraw 9F:01
+DEFINES += HAVE_PENDING_REVIEW_SCREEN
+
 # Build configuration
 
 ### variables processed by the common makefile.rules of the SDK to grab source files and include dirs
