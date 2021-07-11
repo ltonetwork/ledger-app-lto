@@ -1,6 +1,9 @@
 
 /*******************************************************************************
-*   Burstcoin Wallet App for Nano Ledger S. Updated By Waves and LTO Network community.
+*   LTO Network Wallet App for Ledger devices
+*   2019-2021 Ignacio Iglesias (iicc) https://github.com/iicc1/ledger-app-lto
+/*******************************************************************************
+*   Burstcoin Wallet App for Nano Ledger S. Updated By Waves community.
 *   Copyright (c) 2017-2018 Jake B.
 * 
 *   Based on Sample code provided and (c) 2016 Ledger
@@ -88,32 +91,35 @@ void menu_sign_init() {
     unsigned char tx_type = tmp_ctx.signing_context.data_type;
     unsigned char tx_version = tmp_ctx.signing_context.data_version;
 
-    // transfer
+    // Transfer https://docs.ltonetwork.com/protocol/public/transactions/transfer-transaction
     if (tx_type == 4) {
         unsigned int processed = 1;
-
+        
+        // Transaction type - 1/2 bytes
         if (tx_version == 2) {
             processed += 1;
         }
 
-        // Sender public key 32 bytes
+        // Sender public key - 32 bytes
         lto_public_key_to_address((const unsigned char *) &tmp_ctx.signing_context.buffer[processed], tmp_ctx.signing_context.network_byte, (unsigned char *) ui_context.line5);
         processed += 32;
 
-        // timestamp;
+        // Timestamp - 8 bytes
         processed += 8;
 
+        // Amount - 8 bytes
         uint64_t amount = 0;
         copy_in_reverse_order((unsigned char *) &amount, (const unsigned char *) &tmp_ctx.signing_context.buffer[processed], 8);
         print_amount(amount, tmp_ctx.signing_context.amount_decimals, (unsigned char*) ui_context.line1, 45);
         processed += 8;
 
+        // Fees - 8 bytes
         uint64_t fee = 0;
         copy_in_reverse_order((unsigned char *) &fee, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 8);
         print_amount(fee, tmp_ctx.signing_context.fee_decimals, (unsigned char*) ui_context.line3, 45);
         processed += 8;
 
-        // To address or alias flag is a part of address
+        // To address or alias flag is a part of address - 26 bytes
         if (tmp_ctx.signing_context.buffer[processed] == 1) {
           size_t length = 45;
           if (!b58enc((char *) ui_context.line2, &length, (const void *) &tmp_ctx.signing_context.buffer[processed], 26)) {
@@ -131,7 +137,7 @@ void menu_sign_init() {
           processed += alias_size;
         }
 
-        // Attachment
+        // Attachment size - 2 bytes
         uint16_t attachment_size = 0;
         copy_in_reverse_order((unsigned char *) &attachment_size, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 2);
         processed += 2;
@@ -141,10 +147,11 @@ void menu_sign_init() {
           attachment_size = 41;
         }
 
+        // Attachment - depends on the value of attachment size
         memmove((unsigned char *) ui_context.line4, (const unsigned char *) &tmp_ctx.signing_context.buffer[processed], attachment_size);
         processed += attachment_size;
 
-        // id
+        // Transaction id
         unsigned char id[32];
         blake2b_256((unsigned char *) tmp_ctx.signing_context.buffer, tmp_ctx.signing_context.buffer_used, &id);
         size_t length = 45;
@@ -161,24 +168,26 @@ void menu_sign_init() {
         #elif defined(TARGET_NANOS)
             UX_DISPLAY(ui_verify_transfer_nanos, ui_verify_transfer_prepro);
         #elif defined(TARGET_NANOX)
-            ux_flow_init(0, ux_transfer_flow, NULL); // TODO
+            ux_flow_init(0, ux_transfer_flow, NULL);
         #endif // #if TARGET_ID
         return;
     
-    // Start lease
+    // Start lease: https://docs.ltonetwork.com/protocol/public/transactions/lease-transaction
     } else if (tx_type == 8) {
-        memmove(&ui_context.line1, &"Start Lease\0", 12);
-
-        // Header
         unsigned int processed = 1;
+
+        // Transaction type - 1/2 bytes
         if (tx_version == 2) {
             processed += 1;
         }
 
-        // Sender public key 32 bytes
+        // Transaction name
+        memmove(&ui_context.line1, &"Start Lease\0", 12);
+
+        // Sender public key - 32 bytes
         processed += 32;
 
-        // address or alias flag is a part of address
+        // To address or alias flag is a part of address - 26 bytes
         if (tmp_ctx.signing_context.buffer[processed] == 1) {
           size_t length = 45;
           if (!b58enc((char *) ui_context.line2, &length, (const void *) &tmp_ctx.signing_context.buffer[processed], 26)) {
@@ -196,22 +205,22 @@ void menu_sign_init() {
           processed += alias_size;
         }
 
-        // Lease amount
+        // Lease amount - 8 bytes
         uint64_t amount = 0;
         copy_in_reverse_order((unsigned char *) &amount, (const unsigned char *) &tmp_ctx.signing_context.buffer[processed], 8);
         print_amount(amount, tmp_ctx.signing_context.amount_decimals, (unsigned char*) ui_context.line3, 45);
         processed += 8;
 
-        // Fee amount
+        // Fee amount - 8 bytes
         uint64_t fee = 0;
         copy_in_reverse_order((unsigned char *) &fee, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 8);
         print_amount(fee, tmp_ctx.signing_context.fee_decimals, (unsigned char*) ui_context.line4, 45);
         processed += 8;
 
-        // timestamp;
+        // Timestamp - 8 bytes
         processed += 8;
         
-        // TX id
+        // Transaction id
         memmove(&ui_context.line5, &"Transaction Id\0", 15);
         unsigned char id[32];
         blake2b_256((unsigned char *) tmp_ctx.signing_context.buffer, tmp_ctx.signing_context.buffer_used, &id);
@@ -238,26 +247,28 @@ void menu_sign_init() {
         #endif // #if TARGET_ID
         return;
 
-    // Cancel lease
+    // Cancel lease: https://docs.ltonetwork.com/protocol/public/transactions/cancel-lease-transaction
     } else if (tx_type == 9) {
-        memmove(&ui_context.line1, &"Cancel Lease\0", 13);
-
-        // Header
         unsigned int processed = 1;
+
+        // Transaction type - 1/2 bytes
         if (tx_version == 2) {
             processed += 1;
         }
 
-        // Sender public key 32 bytes
+        // Transaction name
+        memmove(&ui_context.line1, &"Cancel Lease\0", 13);
+
+        // Sender public key - 32 bytes
         processed += 32;
 
-        // Fee amount
+        // Fee amount - 8 bytes
         uint64_t fee = 0;
         copy_in_reverse_order((unsigned char *) &fee, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 8);
         print_amount(fee, tmp_ctx.signing_context.fee_decimals, (unsigned char*) ui_context.line2, 45);
         processed += 8;
         
-        // TX id
+        // Transaction id
         memmove(&ui_context.line3, &"Transaction Id\0", 15);
         unsigned char id[32];
         blake2b_256((unsigned char *) tmp_ctx.signing_context.buffer, tmp_ctx.signing_context.buffer_used, &id);
@@ -284,39 +295,40 @@ void menu_sign_init() {
         #endif // #if TARGET_ID
         return;
 
-    // Aanchor
+    // Anchor: https://docs.ltonetwork.com/protocol/public/transactions/anchor
     } else if (tx_type == 15) {
-        memmove(&ui_context.line1, &"Anchor\0", 7);
-
-        // Header
         unsigned int processed = 1;
-        if (tx_version == 2) {
-            processed += 1;
-        }
-        processed += 1;
-        
-        // Sender public key 32 bytes
-        processed += 32;
 
-        // Anchor number
+        // Transaction type - 2 bytes
         processed += 2;
 
-        // Anchor Length
+        // Transaction name
+        memmove(&ui_context.line1, &"Anchor\0", 7);
+        
+        // Sender public key - 32 bytes
+        processed += 32;
+
+        // Anchor number - 2 bytes
+        processed += 2;
+
+        // Anchor length - 2 bytes
         uint16_t anchor_size = 0;
         copy_in_reverse_order((unsigned char *) &anchor_size, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 2);
         processed += 2;
+
+        // Anchor - depends on the value of anchor size
         processed += anchor_size;
 
-        // timestamp;
+        // Timestamp - 8 bytes
         processed += 8;
 
-        // Fee amount
+        // Fee amount - 8 bytes
         uint64_t fee = 0;
         copy_in_reverse_order((unsigned char *) &fee, (unsigned char *) &tmp_ctx.signing_context.buffer[processed], 8);
         print_amount(fee, tmp_ctx.signing_context.fee_decimals, (unsigned char*) ui_context.line2, 45);
         processed += 8;
         
-        // TX id
+        // Transaction id
         memmove(&ui_context.line3, &"Transaction Id\0", 15);
         unsigned char id[32];
         blake2b_256((unsigned char *) tmp_ctx.signing_context.buffer, tmp_ctx.signing_context.buffer_used, &id);
@@ -343,6 +355,7 @@ void menu_sign_init() {
         #endif // #if TARGET_ID
         return;
 
+    // Other transaction types: https://docs.ltonetwork.com/protocol/public/transactions
     } else {
         memmove(&ui_context.line2, &"Transaction Id\0", 15);
         if (tx_type == 11) {

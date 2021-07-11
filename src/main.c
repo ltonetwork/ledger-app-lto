@@ -1,6 +1,6 @@
 /*******************************************************************************
 *   LTO Network Wallet App for Ledger devices, based on Waves code.
-*   2019 Ignacio Iglesias (iicc) https://github.com/iicc1/ledger-app-lto-network
+*   2019-2021 Ignacio Iglesias (iicc) https://github.com/iicc1/ledger-app-lto
 /*******************************************************************************
 *   Waves platform Wallet App for Nano Ledger S. Updated By Waves community.
 *   Copyright (c) 2017-2018 Sergey Tolmachev (Tolsi) <tolsi.ru@gmail.com>

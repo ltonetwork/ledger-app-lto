@@ -6,17 +6,17 @@ Community made LTO Network wallet application for Ledger devices.
 <br>
 
 # Introduction
-Ledger device wallet application for the LTO Network blockchain developed by a community member.
+- Ledger device wallet application for the LTO Network blockchain developed by a community member.
 
-It is compliant with [LTO Network cryptographic specifications](https://docs.lto.network/project/developer-area/lto_protocol/cryptographic_details). 
+- It is compliant with [LTO Network cryptographic specifications](https://docs.ltonetwork.com/protocol/cryptography). 
 
-It can be tested quickly using the python script located at [python/ledger-lto.py](https://github.com/iicc1/ledger-app-lto-network-unofficial/tree/master/python).
+- There is a ready to use web app interface [here](https://lto.stakely.io/).
 
-There is a ready to use web app interface [here](https://lto-ledger-beta.netlify.app/).
+- It can be tested using the Python script located at [python/ledger-lto.py](https://github.com/iicc1/ledger-app-lto/tree/master/python).
 
-Special thanks to Ledger team, Waves community and, LTO Network team.
+- Special thanks to the Ledger team, Waves community and, LTO Network team.
 
-LTO Network Ledger APP [User Guide](https://github.com/iicc1/ledger-app-lto/wiki/How-to-use-a-Ledger-device-with-LTO-Network)
+- LTO Network Ledger APP [User Guide](https://github.com/iicc1/ledger-app-lto/wiki/How-to-use-a-Ledger-device-with-LTO-Network)
 
 <br>
 
@@ -114,11 +114,22 @@ After this, the installation process will start, asking for your permission on t
 
 ## Nano X
 Unfortunately, at the time of writing, there is no way to load a non-official Ledger APP into a Ledger Nano X.
-There is a Ledger Nano X emulator called [Speculos](https://speculos.ledger.com/)
+
+You can use a Ledger Nano X emulator called [Speculos](https://speculos.ledger.com/).
 
 <br>
 
-# Run CLI app
+
+# Web app
+
+There are currently two web interfaces available to interact with this Ledger application:
+- **Recommended**: https://github.com/iicc1/lto-network-ledger-wallet-ui - [Hosted frontend](https://lto.stakely.io)
+- Deprecated: https://github.com/iicc1/lto-ledger-vue - [Hosted frontend](https://lto-ledger-beta.netlify.app/)
+
+<br>
+
+
+# CLI app
 
 Once the Ledger app is loaded, you can try to communicate with it using the CLI app.
 You can download the precompiled binaries from the [releases tag](https://github.com/iicc1/ledger-app-lto/releases). Make sure you download the correct executable for your platform.
@@ -138,9 +149,3 @@ Then enter the LTO Network app on your ledger and start the script:
 ```bash
 python python/ledger-lto.py
 ```
-
-<br>
-
-# Web app
-
-There is also a Vuejs web app project located here: https://github.com/iicc1/lto-ledger-vue
