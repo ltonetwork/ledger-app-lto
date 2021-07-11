@@ -300,7 +300,7 @@ void menu_sign_init() {
         unsigned int processed = 1;
 
         // Transaction type - 2 bytes
-        processed += 2;
+        processed += 1;
 
         // Transaction name
         memmove(&ui_context.line1, &"Anchor\0", 7);
