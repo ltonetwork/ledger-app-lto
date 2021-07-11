@@ -23,7 +23,7 @@ include $(BOLOS_SDK)/Makefile.defines
 # Main app configuration
 
 APPVERSION_M=2
-APPVERSION_N=0
+APPVERSION_N=2
 APPVERSION_P=0
 
 APPNAME = "LTO Network"
